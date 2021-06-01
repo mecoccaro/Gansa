@@ -14,14 +14,14 @@ class User(models.Model):
 class Tournament(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=20)
-    init_date = models.DateTimeField
-    end_date = models.DateTimeField
+    init_date = models.DateField()
+    end_date = models.DateField()
 
 
 class Quiniela(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    init_date = models.DateTimeField
-    end_date = models.DateTimeField
+    init_date = models.DateField()
+    end_date = models.DateField()
     tournament_fk = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 
 
@@ -38,16 +38,16 @@ class Teams(models.Model):
 
 
 class Game(models.Model):
-    teamA = models.CharField
-    teamB = models.CharField
-    date = models.DateTimeField
+    teamA = models.CharField(max_length=50)
+    teamB = models.CharField(max_length=50)
+    date = models.DateField()
     phase = models.CharField(max_length=20, null=True)
     Tournament_fk = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 
 
 class GameQuinielaUser(models.Model):
-    teamA = models.CharField
-    teamB = models.CharField
+    teamA = models.CharField(max_length=50)
+    teamB = models.CharField(max_length=50)
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
     scoreB = models.IntegerField(null=False)
