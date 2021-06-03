@@ -1,15 +1,6 @@
 import uuid
 from django.db import models
-
-
-class User(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50)
-    email = models.CharField(max_length=30)
-    password = models.CharField(max_length=50)
-    username = models.CharField(max_length=50)
-    type = models.CharField(max_length=20)  # admin or user
-
+from django.contrib.auth.models import User as DJuser
 
 class Tournament(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -28,7 +19,7 @@ class Quiniela(models.Model):
 class UserQuiniela(models.Model):
     points = models.FloatField()
     quiniela_fk = models.ForeignKey(Quiniela, on_delete=models.CASCADE)
-    user_fk = models.ForeignKey(User, on_delete=models.CASCADE)
+    djuser_fk = models.ForeignKey(DJuser, on_delete=models.CASCADE)
 
 
 class Teams(models.Model):
