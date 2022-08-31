@@ -4,7 +4,7 @@ from django.contrib import messages
 from .forms import RegisterForm
 
 def index(request):
-    return HttpResponse("Hola, mundo. Está en el índice de encuestas.")
+    return HttpResponse("Gansa. Propiedad de gansa 2022.")
 
 def register(request):
     if request.method == 'GET':
