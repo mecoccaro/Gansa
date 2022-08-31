@@ -20,6 +20,13 @@ class QuinielaTournament(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        permissions = (
+            ("family", "can access family tournaments"),
+            ("edFriends", "can access edFriends tournaments"),
+            ("meFriends", "can access meFriends tournaments"),
+        )
+
 
 class UserQuiniela(models.Model):
     points = models.FloatField()
