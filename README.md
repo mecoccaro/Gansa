@@ -39,6 +39,6 @@ python manage.py runserver
 ## Contributors
 
 <a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo = mecoccaro/gansa"/>
+  <img src = "https://contrib.rocks/image?repo = mecoccaro/Gansa"/>
 </a>
 Made with [contributors-img](https://contrib.rocks).
