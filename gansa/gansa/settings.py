@@ -72,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/quiniela/home'
 LOGOUT_REDIRECT_URL = '/'
 
 WSGI_APPLICATION = 'gansa.wsgi.application'
