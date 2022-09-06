@@ -17,15 +17,16 @@ class QuinielaTournament(models.Model):
     init_date = models.DateField()
     end_date = models.DateField()
 
-    def __str__(self):
-        return self.name
-
     class Meta:
+        managed = True
         permissions = (
             ("family", "can access family tournaments"),
             ("edFriends", "can access edFriends tournaments"),
             ("meFriends", "can access meFriends tournaments"),
         )
+
+    def __str__(self):
+        return self.name
 
 
 class UserQuiniela(models.Model):
