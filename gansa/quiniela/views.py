@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
+from .models import QuinielaTournament, Teams
 
 def index(request):
     return HttpResponse("Gansa. Propiedad de gansa 2022.")
@@ -28,3 +29,9 @@ def register(request):
 
     return render(request, 'registration/signup.html', {})
 
+def userHome(request):
+    tournament = QuinielaTournament.objects.all
+    teams = Teams.objects.all
+    context = {'tournament': tournament, 'teams': teams}
+    return render(request, 'home.html', context)
+        
