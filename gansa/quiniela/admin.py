@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Teams, Game, QuinielaTournament
+from .models import Teams, Game, QuinielaTournament, Phases
 
 
 class TeamsAdmin(admin.ModelAdmin):
@@ -20,7 +20,11 @@ class GameAdmin(admin.ModelAdmin):
         res = str(obj.teamA) + '-' + str(obj.teamB)
         return res
 
+class PhasesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
 
 admin.site.register(Teams, TeamsAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(QuinielaTournament, TournamentAdmin)
+admin.site.register(Phases, PhasesAdmin)

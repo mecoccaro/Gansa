@@ -34,6 +34,14 @@ class UserQuiniela(models.Model):
     djuser_fk = models.ForeignKey(DJuser, on_delete=models.CASCADE)
 
 
+class Phases(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=20, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Game(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     teamA = models.ForeignKey(Teams, on_delete=models.CASCADE, related_name='gameTeamA')
@@ -41,17 +49,23 @@ class Game(models.Model):
     scoreA = models.IntegerField(null=True)
     scoreB = models.IntegerField(null=True)
     date = models.DateField()
-    phase = models.CharField(max_length=20, null=True)
+    phase = models.ForeignKey(Phases, on_delete=models.CASCADE)
     Tournament_fk = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
 
 
-class GameQuinielaUser(models.Model):
-    teamA = models.ForeignKey(Teams, on_delete=models.CASCADE, related_name='teamA')
-    teamB = models.ForeignKey(Teams, on_delete=models.CASCADE, related_name='teamB')
+class GameQuinielaGroups(models.Model):
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
     game_tournament = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
     scoreB = models.IntegerField(null=False)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    gameId = models.ForeignKey(Game, on_delete=models.CASCADE)
+    gameId = models.CharField(max_length=20, null=True)
+
+class GameQuinielaQualify(models.Model):
+    user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
+    game_tournament = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
+    scoreA = models.IntegerField(null=False)
+    scoreB = models.IntegerField(null=False)
+    winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
+    gameId = models.CharField(max_length=20, null=True)
