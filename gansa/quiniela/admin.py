@@ -7,8 +7,8 @@ class TeamsAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'init_date', 'end_date')
-    search_fields = ['name']
+    list_display = ('name', 'id', 'init_date', 'end_date', 'group')
+    search_fields = ['name', 'group']
     
 
 class GameAdmin(admin.ModelAdmin):

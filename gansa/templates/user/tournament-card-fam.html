@@ -1,13 +1,3 @@
-{% extends 'base.html' %}
-{% block title %} Gansa {% endblock %}
-<body>
-{% load static %}
-{% block content %}
-{% if perms.app_label.family %}
-    {% include "user/tournament-card-fam.html" %}
-{% elif perms.app_label.edFriends %}
-    {% include "user/tournament-card-edf.html" %}
-{% else %}
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-12 col-md-9">
@@ -28,8 +18,15 @@
                                 <div class="card-body">
                               
                                   <!-- Title -->
-                                  <h4 class="card-title"><a>Sin torneos</a></h4>
-                                  <p><a href="{% url 'logout' %}">Log Out</a></p>
+                                  <h4 class="card-title"><a>Torneos</a></h4>
+                                  <!-- Text -->
+                                  <p class="card-text">
+                                    {% for quinielas in famtournament %}
+                                        <p>{{ quinielas.name }}</p>
+                                    {% endfor %}
+                                    </p>
+                                  <!-- Button -->
+                                  <a href="#" class="btn btn-primary">Go</a>
                                 </div>
                               </div>
                         </div>
@@ -39,7 +36,3 @@
         </div>
     </div>
 </div>
-{% endif %}
-{% endblock %}
-</body>
-
