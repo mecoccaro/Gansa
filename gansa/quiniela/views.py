@@ -30,8 +30,10 @@ def register(request):
     return render(request, 'registration/signup.html', {})
 
 def userHome(request):
+    famTournament = QuinielaTournament.objects.filter(group = 'F')
+    efTournament = QuinielaTournament.objects.filter(group = 'EF')
     tournament = QuinielaTournament.objects.all
     teams = Teams.objects.all
-    context = {'tournament': tournament, 'teams': teams}
+    context = {'tournament': tournament, 'famtournament': famTournament, 'teams': teams}
     return render(request, 'home.html', context)
         

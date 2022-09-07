@@ -16,6 +16,13 @@ class QuinielaTournament(models.Model):
     name = models.CharField(max_length=20)
     init_date = models.DateField()
     end_date = models.DateField()
+    GROUPS = (
+        ('F', 'family'),
+        ('EF', 'edFriends'),
+        ('MF', 'meFriends'),
+        ('N', 'none')
+    )
+    group = models.CharField(max_length=2, choices=GROUPS, default='N')
 
     class Meta:
         managed = True
