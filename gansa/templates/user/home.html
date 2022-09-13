@@ -7,6 +7,7 @@
     {% include "user/tournament-card-fam.html" %}
 {% elif perms.app_label.edFriends %}
     {% include "user/tournament-card-edf.html" %}
+    <p><a href="{% url 'logout' %}">Log Out</a></p>
 {% else %}
 <div class="container">
     <div class="row justify-content-center">

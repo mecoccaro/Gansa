@@ -9,26 +9,19 @@
                         <div class="col-lg-6">
                             {% csrf_token %}
                             <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
-                            <div class="card" style="margin: 5%">
-
-                                <!-- Card image -->
-                                <img class="card-img-top" src="https://cms.somosfanaticos.com/__export/1662233169975/sites/fanaticos/img/2022/09/03/qatar_logo_fifa_crop1662233169506.jpg_1624932088.jpg" alt="Card image cap">
-                              
-                                <!-- Card content -->
-                                <div class="card-body">
-                              
-                                  <!-- Title -->
-                                  <h4 class="card-title"><a>Torneos</a></h4>
-                                  <!-- Text -->
-                                  <p class="card-text">
-                                    {% for quinielas in famtournament %}
-                                        <p>{{ quinielas.name }}</p>
-                                    {% endfor %}
-                                    </p>
-                                  <!-- Button -->
-                                  <a href="#" class="btn btn-primary">Go</a>
+                            <p><a href="{% url 'logout' %}">Log Out</a></p>
+                            {% for quinielas in famtournament %}
+                                <div class="card" style="margin: 5%">
+                                    <img class="card-img-top" src="https://cms.somosfanaticos.com/__export/1662233169975/sites/fanaticos/img/2022/09/03/qatar_logo_fifa_crop1662233169506.jpg_1624932088.jpg" alt="Card image cap">
+                                    <!-- Card content -->
+                                    <div class="card-body">
+                                    <!-- Title -->
+                                        <h4 class="card-title"><a>{{ quinielas.name }}</a></h4>
+                                        <a href="{% url 'tournament' quinielas.id %}" class="btn btn-primary">Go</a>
+                                    
+                                    </div>
                                 </div>
-                              </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

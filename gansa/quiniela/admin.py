@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Teams, Game, QuinielaTournament, Phases
+from .models import Teams, Game, QuinielaTournament, Phases, UserQuiniela
 
 
 class TeamsAdmin(admin.ModelAdmin):
@@ -23,8 +23,12 @@ class GameAdmin(admin.ModelAdmin):
 class PhasesAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 
+class UserQuinielaAdmin(admin.ModelAdmin):
+    list_display = ('points', 'quiniela_fk', 'djuser_fk')
+
 
 admin.site.register(Teams, TeamsAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(QuinielaTournament, TournamentAdmin)
 admin.site.register(Phases, PhasesAdmin)
+admin.site.register(UserQuiniela, UserQuinielaAdmin)
