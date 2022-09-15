@@ -19,7 +19,14 @@
                         <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
                         <div class="col-lg-6">
                             {% csrf_token %}
-                            <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item" aria-current="page">
+                                        <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
+                                    </li>
+                                    <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                                </ol>
+                            </nav>
                             <div class="card" style="margin: 5%">
 
                                 <!-- Card image -->
@@ -30,7 +37,6 @@
                               
                                   <!-- Title -->
                                   <h4 class="card-title"><a>Sin torneos</a></h4>
-                                  <p><a href="{% url 'logout' %}">Log Out</a></p>
                                 </div>
                               </div>
                         </div>

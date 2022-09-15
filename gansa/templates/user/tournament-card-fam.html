@@ -8,8 +8,14 @@
                         <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
                         <div class="col-lg-6">
                             {% csrf_token %}
-                            <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
-                            <p><a href="{% url 'logout' %}">Log Out</a></p>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item" aria-current="page">
+                                        <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
+                                    </li>
+                                    <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                                </ol>
+                            </nav>
                             {% for quinielas in famtournament %}
                                 <div class="card" style="margin: 5%">
                                     <img class="card-img-top" src="https://cms.somosfanaticos.com/__export/1662233169975/sites/fanaticos/img/2022/09/03/qatar_logo_fifa_crop1662233169506.jpg_1624932088.jpg" alt="Card image cap">

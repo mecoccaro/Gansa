@@ -12,9 +12,18 @@
                     <div class="row">
                         <div class="col-lg-6 d-none d-lg-block bg-tournament-image"></div>
                         <div class="col-lg-6">
+                            <div class="row">
+                              <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                  <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
+                                  <li class="breadcrumb-item"><a href="#">Tabla</a></li>
+                                  <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
+                                  <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                                </ol>
+                              </nav>
+                            </div>
                             {% csrf_token %}
                             <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
-                            <p><a href="{% url 'logout' %}">Log Out</a></p>
                             <h4 class="card-title"><a>{{ tournament.name }}</a></h4>
                             <table class="table">
                                 <thead>
