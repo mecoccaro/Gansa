@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from .formGames import GameFormGroups, GamesFormSet
-from .models import QuinielaTournament, Teams, UserQuiniela, Game
+from .models import QuinielaTournament, Teams, UserQuiniela, Game, GameQuinielaGroups, GameQuinielaQualify
 import json
 
 
@@ -79,6 +79,7 @@ def gamesView2(request, qt_id):
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
         games = Game.objects.filter(Tournament_fk=qt_id)
+        userQuiniela = UserQuiniela.objects.get(quiniela_fk=qt_id, djuser_fk=request.user)
     except Exception as e:
         raise Http404("Tournament does not exist: {}".format(e))
 
@@ -94,6 +95,25 @@ def gamesView2(request, qt_id):
             if res['name'] == 'resB':
                 results[gameIds]['teamB'] = res['value']
         print(results)
+        for keys in results.keys():
+            gameGroups = GameQuinielaGroups()
+            gameTeams = Game.objects.get(gameId=keys)
+            teamA = Teams.objects.get(name=gameTeams.teamA.name)
+            teamB = Teams.objects.get(name=gameTeams.teamB.name)
+            tie = Teams.objects.get(name='None')
+            resA = results[keys]['teamA']
+            resB = results[keys]['teamB']
+            gameGroups.user_quiniela = userQuiniela
+            gameGroups.scoreA = resA
+            gameGroups.scoreB = resB
+            gameGroups.gameId = keys
+            if  resA > resB:
+                gameGroups.winner = teamA
+            elif resB > resA:
+                gameGroups.winner = teamB
+            else:
+                gameGroups.winner = tie
+            gameGroups.save()
         return redirect('tournament', tournament_id=qt_id)
 
 
