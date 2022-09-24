@@ -38,6 +38,7 @@ class QuinielaTournament(models.Model):
 
 class UserQuiniela(models.Model):
     points = models.FloatField()
+    filled = models.BooleanField(default=False, null=False)
     quiniela_fk = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     djuser_fk = models.ForeignKey(DJuser, on_delete=models.CASCADE)
 
@@ -60,11 +61,11 @@ class Game(models.Model):
     phase = models.ForeignKey(Phases, on_delete=models.CASCADE)
     Tournament_fk = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
+    gameId = models.CharField(max_length=20, null=True, default='A1')
 
 
 class GameQuinielaGroups(models.Model):
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
-    game_tournament = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
     scoreB = models.IntegerField(null=False)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
@@ -72,7 +73,6 @@ class GameQuinielaGroups(models.Model):
 
 class GameQuinielaQualify(models.Model):
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
-    game_tournament = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
     scoreB = models.IntegerField(null=False)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)

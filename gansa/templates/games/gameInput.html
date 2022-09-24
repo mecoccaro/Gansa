@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %} Gansa {% endblock %}
+<body>
+{% load static %}
+{% block content %}
+<div class="modal" tabindex="-1" id="myModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmar</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>Revisa bien tus resultados.</p>
+            <p>Una vez guardes tus resultados <span>NO</span> podrás volver a editar.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="submit" id='modalSubmit' class="btn btn-primary">Enviar y guardar</button>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <div class="col-lg-6" style="margin-left: 30px;">
+                            <div class="row">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
+                                        <li class="breadcrumb-item"><a href="{% url 'tournament' tournament.id %}">Tabla</a></li>
+                                        <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
+                                        <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                                    </ol>
+                                </nav>
+                            </div>
+                            <div class="alert alert-dark" role="alert">
+                                {{ tournament.name }}
+                            </div>
+                            {% include 'games/form.html' with games=games %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+{% block javascript %}
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    $("#modalSubmit").click(function (e) {
+        e.preventDefault();
+        var formData = JSON.stringify($("#gamesForm").serializeArray());
+
+        $.ajax({
+            url: '/quiniela/games/{{tournament.id}}',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            data: formData,
+            headers: {'X-CSRFToken': csrftoken},
+            dataType: 'json',
+        });
+        $('#myModal').modal('hide');
+        window.location.replace('/quiniela/tournament/{{tournament.id}}');
+    })
+</script>
+{% endblock javascript %}

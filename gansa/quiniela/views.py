@@ -2,7 +2,10 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
-from .models import QuinielaTournament, Teams, UserQuiniela
+from .formGames import GameFormGroups, GamesFormSet
+from .models import QuinielaTournament, Teams, UserQuiniela, Game
+import json
+
 
 def index(request):
     return HttpResponse("Gansa. Propiedad de gansa 2022.")
@@ -45,4 +48,54 @@ def tournamentView(request, tournament_id):
         raise Http404("Tournament does not exist")
     users = UserQuiniela.objects.filter(quiniela_fk=tournament_id).order_by('-points')
     context = {'tournament': tournament, 'user': users}
-    return render(request, 'user/tournament.html', context) 
+    return render(request, 'user/tournament.html', context)
+
+
+def gamesView(request, qt_id):
+    formset = GamesFormSet()
+    if request.method == 'GET':
+        form = GameFormGroups()
+        context = {'form': form, 'qt_id': qt_id}
+        return render(request, 'games/gameInput.html', context)
+
+    if request.method == 'POST':
+        form = GameFormGroups(request.POST)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Successfully saved form')
+        return redirect('/quiniela/home')
+    else:
+        print('Form is not valid')
+        messages.error(request, 'Error Processing Your Request')
+        context = {'form': form}
+        return render(request, '/quiniela/home', context)
+
+    return render(request, '/quiniela/home', {})
+
+
+def gamesView2(request, qt_id):
+    groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    try:
+        tournament = QuinielaTournament.objects.get(id=qt_id)
+        games = Game.objects.filter(Tournament_fk=qt_id)
+    except Exception as e:
+        raise Http404("Tournament does not exist: {}".format(e))
+
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        results = {}
+        for res in body:
+            if res['name'] == 'gameId':
+                gameIds = res['value']
+                results[gameIds] = {}
+            if res['name'] == 'resA':
+                results[gameIds]['teamA'] = res['value']
+            if res['name'] == 'resB':
+                results[gameIds]['teamB'] = res['value']
+        print(results)
+        return redirect('tournament', tournament_id=qt_id)
+
+
+    context = {'tournament': tournament, 'games': games, 'groupsIds': groupsIds}
+    return render(request, 'games/gameInput.html', context)
