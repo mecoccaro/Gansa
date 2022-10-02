@@ -88,20 +88,7 @@
         $('#myModal').modal('hide');
         window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
-    $('input').keyup( function (){
-        console.log(this.value)
-    })
-
-    if($('#resA').change() || $('#resB').change()) {
-        
-        if($('#resA').val() > $('#resB').val()) {
-            
-        } else if ($('#resA').val() < $('#resB').val()) {
-
-        } else {
-
-        }
-    }
+    
     // Create tables for each group
     var groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     var games = {{teamsGroups|safe}}
@@ -125,15 +112,21 @@
 
         for (var x = 0; x < games[i].length; x++) {
             //Add the data rows.
-            row = $(table[0].insertRow(-1));
+            row = table[0].insertRow(-1)
             for (var j = 0; j < columnCount; j++) {
-                var cell = $("<td />");
+                var cell = row.insertCell();
                 if (j == 0) {
-                    cell.html(games[i][x]);
-                } else {
-                    cell.html(0);
+                    row.id = games[i][x]
+                    cell.innerHTML = games[i][x] 
+                } else if ( j == 1) {
+                    cell.innerHTML = 0
+                } else if ( j == 2) {
+                    cell.innerHTML = 0
+                } else if ( j == 3) {
+                    cell.innerHTML = 0
+                } else if ( j == 4) {
+                    cell.innerHTML = 0
                 }
-                row.append(cell);
             }
             
         }
@@ -144,6 +137,58 @@
         
     }
 
-
+    $('input').keyup( function (){
+        var res = this.value
+        var group = this.id.slice(0,1)
+        var tableId = '#' + this.id.slice(0,1) + 'Table'
+        var teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        if(this.name == 'resA') {
+            var resB = $(`input[name=resB][id=${this.id}]`).val()
+            console.log(res)
+            console.log(resB)
+            if (resB.length != 0){
+                if (res > resB) {
+                    $this = $('#' + teamA).find("td");
+                    val = $this.eq(1).text()
+                    $this.eq(1).html(parseInt(val) + 1);
+                } else if (res < resB) {
+                    $this = $('#' + teamB).find("td");
+                    val = $this.eq(1).text()
+                    $this.eq(1).html(parseInt(val) + 1);
+                } else {
+                    $this = $('#' + teamA).find("td");
+                    val = $this.eq(3).text()
+                    $this.eq(3).html(parseInt(val) + 1);
+                    $this = $('#' + teamB).find("td");
+                    val2 = $this.eq(3).text()
+                    $this.eq(3).html(parseInt(val) + 1);
+                }
+            }
+        } else {
+            var resA = $(`input[name=resA][id=${this.id}]`).val()
+            res = this.value
+            console.log(res)
+            console.log(resA)
+            if (resA.length != 0) {
+                if (res > resA) {
+                    $this = $('#' + teamB).find("td");
+                    val = $this.eq(1).text()
+                    $this.eq(1).html(parseInt(val) + 1);
+                } else if (res < resA) {
+                    $this = $('#' + teamA).find("td");
+                    val = $this.eq(1).text()
+                    $this.eq(1).html(parseInt(val) + 1);
+                } else {
+                    $this = $('#' + teamA).find("td");
+                    val = $this.eq(3).text()
+                    $this.eq(3).html(parseInt(val) + 1);
+                    $this = $('#' + teamB).find("td");
+                    val = $this.eq(3).text()
+                    $this.eq(3).html(parseInt(val) + 1);
+                }
+            }
+        }
+    })
 </script>
 {% endblock javascript %}

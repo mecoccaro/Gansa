@@ -5,11 +5,11 @@
         {% for game in games %}
             {% if game.gameId|slice:':1' == ids %} 
             <div class="input-group">               
-                <span class="input-group-text" style="width: 20%;">{{ game.teamA }}</span>
+                <span class="input-group-text" id="{{game.gameId}}" name="teamA" style="width: 20%;">{{ game.teamA }}</span>
                 <input type="hidden" id='gameId' name="gameId" value="{{game.gameId}}" />
-                <input type="number" aria-label="First name" class="form-control" name="resA" id="resA">
-                <input type="number" aria-label="Last name" class="form-control" name="resB" id="resB">
-                <span class="input-group-text"  style="width: 20%;">{{ game.teamB }}</span>
+                <input type="number" aria-label="First name" class="form-control" name="resA" id="{{game.gameId}}">
+                <input type="number" aria-label="Last name" class="form-control" name="resB" id="{{game.gameId}}">
+                <span class="input-group-text" id="{{game.gameId}}" name="teamB" style="width: 20%;">{{ game.teamB }}</span>
             </div>
             {% endif %}
         {% endfor %}
