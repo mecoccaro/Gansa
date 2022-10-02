@@ -76,13 +76,25 @@ def gamesView(request, qt_id):
 
 def gamesView2(request, qt_id):
     groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos']
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
         games = Game.objects.filter(Tournament_fk=qt_id)
         userQuiniela = UserQuiniela.objects.get(quiniela_fk=qt_id, djuser_fk=request.user)
     except Exception as e:
         raise Http404("Tournament does not exist: {}".format(e))
-
+    
+    teamsGroups = []
+    for g in groupsIds:
+        gg = []
+        gGames = Game.objects.filter(gameId__contains=g)
+        for game in gGames:
+            if game.teamA.name not in gg:
+                gg.append(game.teamA.name)
+            if game.teamB.name not in gg:
+                gg.append(game.teamB.name)
+        teamsGroups.append(gg)
+    print(teamsGroups)
     if request.method == 'POST':
         body = json.loads(request.body)
         results = {}
@@ -116,6 +128,8 @@ def gamesView2(request, qt_id):
             gameGroups.save()
         return redirect('tournament', tournament_id=qt_id)
 
-
-    context = {'tournament': tournament, 'games': games, 'groupsIds': groupsIds}
+    context = {
+        'tournament': tournament, 'games': games, 'groupsIds': groupsIds,
+        'th': tableHeaders, 'teamsGroups': teamsGroups
+        }
     return render(request, 'games/gameInput.html', context)

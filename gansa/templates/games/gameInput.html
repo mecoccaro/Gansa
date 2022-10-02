@@ -44,6 +44,24 @@
                             </div>
                             {% include 'games/form.html' with games=games %}
                         </div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            <div id="ATable">
+                            </div>
+                            <div id="BTable">
+                            </div>
+                            <div id="CTable">
+                            </div>
+                            <div id="DTable">
+                            </div>
+                            <div id="ETable">
+                            </div>
+                            <div id="FTable">
+                            </div>
+                            <div id="GTable">
+                            </div>
+                            <div id="HTable">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,7 +73,7 @@
 {% block javascript %}
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $("#modalSubmit").click(function (e) {
+    $("#modalSubmit").click(function (e) { //Submit game forms
         e.preventDefault();
         var formData = JSON.stringify($("#gamesForm").serializeArray());
 
@@ -70,5 +88,62 @@
         $('#myModal').modal('hide');
         window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
+    $('input').keyup( function (){
+        console.log(this.value)
+    })
+
+    if($('#resA').change() || $('#resB').change()) {
+        
+        if($('#resA').val() > $('#resB').val()) {
+            
+        } else if ($('#resA').val() < $('#resB').val()) {
+
+        } else {
+
+        }
+    }
+    // Create tables for each group
+    var groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    var games = {{teamsGroups|safe}}
+    var tableHeaders = {{th|safe}}
+
+    for (var i = 0; i < games.length; i++){
+         //Create a HTML Table element.
+        var table = $(`<table class="table table-bordered border-primary" />`);
+        table[0].border = "1";
+
+        //Get the count of columns.
+        var columnCount = tableHeaders.length;
+
+        //Add the header row.
+        var row = $(table[0].insertRow(-1));
+        for (var j = 0; j < columnCount; j++) {
+            var headerCell = $("<th />");
+            headerCell.html(tableHeaders[j]);
+            row.append(headerCell);
+        }
+
+        for (var x = 0; x < games[i].length; x++) {
+            //Add the data rows.
+            row = $(table[0].insertRow(-1));
+            for (var j = 0; j < columnCount; j++) {
+                var cell = $("<td />");
+                if (j == 0) {
+                    cell.html(games[i][x]);
+                } else {
+                    cell.html(0);
+                }
+                row.append(cell);
+            }
+            
+        }
+        var tabName = '#' + groups[i] + 'Table'
+        var dvTable = $(tabName);
+        dvTable.html("");
+        dvTable.append(table);
+        
+    }
+
+
 </script>
 {% endblock javascript %}
