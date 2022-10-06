@@ -93,6 +93,7 @@
     var groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     var games = {{teamsGroups|safe}}
     var tableHeaders = {{th|safe}}
+    var tester
 
     for (var i = 0; i < games.length; i++){
          //Create a HTML Table element.
@@ -137,7 +138,7 @@
         
     }
 
-    $('input').keyup( function (){
+    $('input').focusout( function (){
         var res = this.value
         var group = this.id.slice(0,1)
         var tableId = '#' + this.id.slice(0,1) + 'Table'
@@ -145,50 +146,121 @@
         var teamB = $(`span[name=teamB][id=${this.id}]`).text()
         if(this.name == 'resA') {
             var resB = $(`input[name=resB][id=${this.id}]`).val()
-            console.log(res)
-            console.log(resB)
-            if (resB.length != 0){
+            if (resB.length != 0 && res.length != 0){
                 if (res > resB) {
                     $this = $('#' + teamA).find("td");
                     val = $this.eq(1).text()
-                    $this.eq(1).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(1).html(res);
+
+                    $this = $('#' + teamB).find("td");
+                    val = $this.eq(2).text()
+                    res = parseInt(val) + 1
+                    $this.eq(2).html(res);
+                    $(this).data('val', 'W')
                 } else if (res < resB) {
                     $this = $('#' + teamB).find("td");
                     val = $this.eq(1).text()
-                    $this.eq(1).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(1).html(res);
+
+                    $this = $('#' + teamA).find("td");
+                    val = $this.eq(2).text()
+                    res = parseInt(val) + 1
+                    $this.eq(2).html(res);
+                    $(this).data('val', 'L');
                 } else {
                     $this = $('#' + teamA).find("td");
                     val = $this.eq(3).text()
-                    $this.eq(3).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(3).html(res);
+
                     $this = $('#' + teamB).find("td");
                     val2 = $this.eq(3).text()
-                    $this.eq(3).html(parseInt(val) + 1);
+                    res = parseInt(val2) + 1
+                    $this.eq(3).html(res);
+                    $(this).data('val', 'T');
                 }
             }
         } else {
             var resA = $(`input[name=resA][id=${this.id}]`).val()
             res = this.value
-            console.log(res)
-            console.log(resA)
-            if (resA.length != 0) {
+            if (resA.length != 0 && res.length != 0) {
                 if (res > resA) {
-                    $this = $('#' + teamB).find("td");
+                    $this = $('#' + teamB).find("td")
                     val = $this.eq(1).text()
-                    $this.eq(1).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(1).html(res)
+                    $this = $('#' + teamA).find("td")
+                    val = $this.eq(2).text()
+                    res = parseInt(val) + 1
+                    $this.eq(2).html(res)
+                    $(this).data('val', 'W');
                 } else if (res < resA) {
-                    $this = $('#' + teamA).find("td");
+                    $this = $('#' + teamA).find("td")
                     val = $this.eq(1).text()
-                    $this.eq(1).html(parseInt(val) + 1);
-                } else {
-                    $this = $('#' + teamA).find("td");
-                    val = $this.eq(3).text()
-                    $this.eq(3).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(1).html(res)
+
                     $this = $('#' + teamB).find("td");
+                    val = $this.eq(2).text()
+                    res = parseInt(val) + 1
+                    $this.eq(2).html(res)
+                    $(this).data('val', 'L');
+                } else {
+                    $this = $('#' + teamA).find("td")
                     val = $this.eq(3).text()
-                    $this.eq(3).html(parseInt(val) + 1);
+                    res = parseInt(val) + 1
+                    $this.eq(3).html(res)
+                   
+                    $this = $('#' + teamB).find("td")
+                    val = $this.eq(3).text()
+                    res = parseInt(val) + 1
+                    $this.eq(3).html(res)
+                    $(this).data('val', 'T');
                 }
             }
         }
     })
+    $('input').focusout( function(){
+        $(this).data('result', $(this).val());
+    })
+    
+    $('input').change( function(){
+        var prev = $(this).data('val')
+        var res = $(this).val();
+        var prevRes = $(this).data('result')
+        var teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        if (res != prevRes && prevRes) {
+            if (prev && prev == 'W') {
+                console.log('changes', prev)
+                $this = $('#' + teamA).find("td");
+                val = $this.eq(1).text()
+                res = parseInt(val) - 1
+                $this.eq(1).html(res);
+            } else if (prev && prev == 'L') {
+                console.log('changes', prev)
+                $this = $('#' + teamB).find("td");
+                val = $this.eq(2).text()
+                res = parseInt(val) - 1
+                $this.eq(2).html(res);
+            } else if (prev && prev == 'T') {
+                console.log('changes', prev)
+                $this = $('#' + teamA).find("td");
+                val = $this.eq(3).text()
+                res = parseInt(val) - 1
+                $this.eq(3).html(res);
+
+                $this = $('#' + teamB).find("td");
+                val2 = $this.eq(3).text()
+                res = parseInt(val2) - 1
+                $this.eq(3).html(res);
+            }
+        }
+    });
+
+
+
 </script>
 {% endblock javascript %}
