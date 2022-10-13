@@ -23,46 +23,58 @@
 </div>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-xl-10 col-lg-12 col-md-9">
-            <div class="card o-hidden border-0 shadow-lg my-5">
-                <div class="card-body p-0">
+        <div class="card-columns">
+            <div class="card shadow-lg my-5">
+                <div class="card-body">
                     <!-- Nested Row within Card Body -->
                     <div class="row">
-                        <div class="col-lg-6" style="margin-left: 30px;">
-                            <div class="row">
-                                <nav aria-label="breadcrumb">
-                                    <ol class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
-                                        <li class="breadcrumb-item"><a href="{% url 'tournament' tournament.id %}">Tabla</a></li>
-                                        <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
-                                        <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
-                                    </ol>
-                                </nav>
-                            </div>
-                            <div class="alert alert-dark" role="alert">
-                                {{ tournament.name }}
-                            </div>
-                            {% include 'games/form.html' with games=games %}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'tournament' tournament.id %}">Tabla</a></li>
+                                <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                            </ol>
+                        </nav>
+                        <div class="alert alert-dark" role="alert">
+                            {{ tournament.name }}
                         </div>
-                        <div class="col-lg-6 d-none d-lg-block">
-                            <div id="ATable">
-                            </div>
-                            <div id="BTable">
-                            </div>
-                            <div id="CTable">
-                            </div>
-                            <div id="DTable">
-                            </div>
-                            <div id="ETable">
-                            </div>
-                            <div id="FTable">
-                            </div>
-                            <div id="GTable">
-                            </div>
-                            <div id="HTable">
-                            </div>
-                        </div>
+                        {% include 'games/form.html' with games=games %}
                     </div>
+                </div>
+            </div>
+            <div class="card p-3 my-5" >
+                <div class="col-lg-6">
+                    <div id="ATable">
+                    </div>
+                    <div id="BTable">
+                    </div>
+                    <div id="CTable">
+                    </div>
+                    <div id="DTable">
+                    </div>
+                    <div id="ETable">
+                    </div>
+                    <div id="FTable">
+                    </div>
+                    <div id="GTable">
+                    </div>
+                    <div id="HTable">
+                    </div>
+                </div>
+            </div>
+            <div class="card p-3 my-5" >
+                <div class="col-lg-12">
+                    {% include 'games/8form.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/4form.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/semiform.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/finalForm.html' %}
                 </div>
             </div>
         </div>
@@ -232,21 +244,30 @@
         var prevRes = $(this).data('result')
         var teamA = $(`span[name=teamA][id=${this.id}]`).text()
         var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        var winT
+        var loseT
         if (res != prevRes && prevRes) {
             if (prev && prev == 'W') {
-                console.log('changes', prev)
-                $this = $('#' + teamA).find("td");
+                if(this.name == 'resA') {
+                    winT = teamA
+                } else {
+                    winT = teamB
+                }
+                $this = $('#' + winT).find("td");
                 val = $this.eq(1).text()
                 res = parseInt(val) - 1
                 $this.eq(1).html(res);
             } else if (prev && prev == 'L') {
-                console.log('changes', prev)
-                $this = $('#' + teamB).find("td");
+                if(this.name == 'resA') {
+                    loseT = teamB
+                } else {
+                    loseT = teamA
+                }
+                $this = $('#' + loseT).find("td");
                 val = $this.eq(2).text()
                 res = parseInt(val) - 1
                 $this.eq(2).html(res);
             } else if (prev && prev == 'T') {
-                console.log('changes', prev)
                 $this = $('#' + teamA).find("td");
                 val = $this.eq(3).text()
                 res = parseInt(val) - 1
@@ -260,6 +281,9 @@
         }
     });
 
+    $('#groupForm').click( function () {
+        console.log('test')
+    })
 
 
 </script>
