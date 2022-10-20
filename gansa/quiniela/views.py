@@ -94,7 +94,7 @@ def gamesView2(request, qt_id):
             if game.teamB.name not in gg:
                 gg.append(game.teamB.name)
         teamsGroups.append(gg)
-    print(teamsGroups)
+
     if request.method == 'POST':
         body = json.loads(request.body)
         results = {}
