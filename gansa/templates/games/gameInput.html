@@ -87,65 +87,25 @@
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     $("#modalSubmit").click(function (e) { //Submit game forms
         e.preventDefault();
+        var results = []
         var formData = JSON.stringify($("#gamesForm").serializeArray()); // group form
-
+        results.push($("#gamesForm").serializeArray())
+        results.push($("#8Form").serializeArray())
+        results.push($("#4Form").serializeArray())
+        results.push($("#semiForm").serializeArray())
+        results.push($("#finalForm").serializeArray())
+        console.log(results)
         $.ajax({
             url: '/quiniela/games/{{tournament.id}}',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
-            data: formData,
+            data: JSON.stringify(results),
             headers: {'X-CSRFToken': csrftoken},
             dataType: 'json',
         });
-        // Send 8vos
-        formData = JSON.stringify($("#8Form").serializeArray()); // group form
-
-        $.ajax({
-            url: '/quiniela/games/{{tournament.id}}',
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            data: formData,
-            headers: {'X-CSRFToken': csrftoken},
-            dataType: 'json',
-        });
-
-        // Send 4tos
-        formData = JSON.stringify($("#4Form").serializeArray()); // group form
-
-        $.ajax({
-            url: '/quiniela/games/{{tournament.id}}',
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            data: formData,
-            headers: {'X-CSRFToken': csrftoken},
-            dataType: 'json',
-        });
-
-        // Send semi
-        formData = JSON.stringify($("#semiForm").serializeArray()); // group form
-
-        $.ajax({
-            url: '/quiniela/games/{{tournament.id}}',
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            data: formData,
-            headers: {'X-CSRFToken': csrftoken},
-            dataType: 'json',
-        });
-
-        // Send final
-        formData = JSON.stringify($("#finalForm").serializeArray()); // group form
-
-        $.ajax({
-            url: '/quiniela/games/{{tournament.id}}',
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            data: formData,
-            headers: {'X-CSRFToken': csrftoken},
-            dataType: 'json',
-        });
+        
         $('#myModal').modal('hide');
-        window.location.replace('/quiniela/tournament/{{tournament.id}}');
+        //window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
     
     function sortTable(tableName) {
@@ -468,19 +428,28 @@
             resB = $(`input[name=resB][id=q${i}]`).val()
             var teamA = $(`span[name=teamA][id=q${i}]`).text()
             var teamB = $(`span[name=teamB][id=q${i}]`).text()
-            var teamW
-            var side
+            var teamW, side, winner
             side = i%2 == 0 ? 'B' : 'A'
             if (resA == resB){
                 teamW = $(`[id=q${i}] option:selected`).text()
+                console.log(teamW)
             }
             if (resA > resB) { // +8 to q 4tos
                 $(`span[name=team${side}][id='q${i+8}']`).text(teamA)
+                winner = teamA
             } else if (resA < resB) {
                 $(`span[name=team${side}][id='q${i+8}']`).text(teamB)
+                winner = teamB
             } else { // Case tie, check how to get value from drop down
                 $(`span[name=team${side}][id='q${i+8}']`).text(teamW)
+                winner = teamW
             }
+            $('<input>').attr({
+                type: 'hidden',
+                id: `q${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#q${i}`);
         }
     })
 
@@ -502,11 +471,20 @@
             }
             if (resA > resB) {
                 $(`span[name=team${side}][id='semi${s}']`).text(teamA)
+                winner = teamA
             } else if (resA < resB) {
                 $(`span[name=team${side}][id='semi${s}']`).text(teamB)
+                winner = teamB
             } else { // Case tie, check how to get value from drop down
                 $(`span[name=team${side}][id='semi${s}']`).text(teamW)
+                winner = teamW
             }
+            $('<input>').attr({
+                type: 'hidden',
+                id: `q${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#q${i}`);
         }
     })
 
@@ -523,12 +501,46 @@
             }
             if (resA > resB) {
                 $(`span[name=team${side}][id='final']`).text(teamA)
+                winner = teamA
             } else if (resA < resB) {
                 $(`span[name=team${side}][id='final']`).text(teamB)
+                winner = teamB
             } else { // Case tie, check how to get value from drop down
                 $(`span[name=team${side}][id='final']`).text(teamW)
+                winner = teamW
             }
+            $('<input>').attr({
+                type: 'hidden',
+                id: `semi${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#semi${i}`);
         }
+    })
+
+    $('#final').click( function (){
+        
+        resA = $(`input[name=resA][id=fina;]`).val()
+        resB = $(`input[name=resB][id=final]`).val()
+        var teamA = $(`span[name=teamA][id=final]`).text()
+        var teamB = $(`span[name=teamB][id=final]`).text()
+        var teamW
+        if (resA == resB){
+            teamW = $(`[id=final] option:selected`).text()
+        }
+        if (resA > resB) {
+            winner = teamA
+        } else if (resA < resB) {
+            winner = teamB
+        } else { // Case tie, check how to get value from drop down
+            winner = teamW
+        }
+        $('<input>').attr({
+            type: 'hidden',
+            id: `final`,
+            name: 'winnerTeam',
+            value: winner
+        }).appendTo(`#final`);
     })
 
 
@@ -547,12 +559,11 @@
             'teamA': teamA,
             'teamB': teamB
         }
-        var s = $('<select />')
+        var s = $(`<select name='winner' />`)
         if(this.name == 'resA') {
             var resB = $(`input[name=resB][id=${this.id}]`).val()
             if (resB.length != 0 && res.length != 0){
                 if (res == resB) {
-                    console.log('tie')
                     for(var val in data) {
                         $('<option />', {value: val, text: data[val]}).appendTo(s);
                     }
