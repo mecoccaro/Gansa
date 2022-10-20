@@ -189,6 +189,9 @@
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
         var group = this.id.slice(0,1)
+        if (group == 'q' || group == 's'|| group =='f') {
+            return false
+        }
         var tableId = '#' + this.id.slice(0,1) + 'Table'
         var teamA = $(`span[name=teamA][id=${this.id}]`).text()
         var teamB = $(`span[name=teamB][id=${this.id}]`).text()
@@ -352,7 +355,6 @@
         var table, tableName, prev, x
         for(i=0; i <= groups.length; i++){
             if (groups[i] == 'C') { //Avoid C group and beyond just for testing
-                console.log('llegamos al c')
                 break
             }
             tableName = groups[i] + 'InTable'
@@ -409,6 +411,64 @@
         }
     })
 
+    $('#8vos').click( function (){
+        for (i=1; i <= 8 ; i++) {
+            resA = $(`input[name=resA][id=q${i}]`).val()
+            resB = $(`input[name=resB][id=q${i}]`).val()
+            var teamA = $(`span[name=teamA][id=q${i}]`).text()
+            var teamB = $(`span[name=teamB][id=q${i}]`).text()
+            var side
+            side = i%2 == 0 ? 'B' : 'A'
+            if (resA > resB) { // +8 to q 4tos
+                $(`span[name=team${side}][id='q${i+8}']`).text(teamA)
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='q${i+8}']`).text(teamB)
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='q${i+8}']`).text(teamA)
+            }
+        }
+    })
+
+    $('#4tos').click( function (){
+        for (i=9; i <= 12 ; i++) {
+            resA = $(`input[name=resA][id=q${i}]`).val()
+            resB = $(`input[name=resB][id=q${i}]`).val()
+            var teamA = $(`span[name=teamA][id=q${i}]`).text()
+            var teamB = $(`span[name=teamB][id=q${i}]`).text()
+            var side, s
+            side = i%2 == 0 ? 'B' : 'A'
+            if (i == 9 || i == 10) { // s means semi for calc semi side
+                s = 2
+            } else {
+                s = 1
+            }
+            if (resA > resB) {
+                $(`span[name=team${side}][id='semi${s}']`).text(teamA)
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='semi${s}']`).text(teamB)
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='semi${i+8}']`).text(teamA)
+            }
+        }
+    })
+
+    $('#semi').click( function (){
+        for (i=1; i <= 2 ; i++) {
+            resA = $(`input[name=resA][id=semi${i}]`).val()
+            resB = $(`input[name=resB][id=semi${i}]`).val()
+            var teamA = $(`span[name=teamA][id=semi${i}]`).text()
+            var teamB = $(`span[name=teamB][id=semi${i}]`).text()
+            var side
+            side = i%2 == 0 ? 'B' : 'A'
+            if (resA > resB) {
+                $(`span[name=team${side}][id='final']`).text(teamA)
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='final']`).text(teamB)
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='final']`).text(teamA)
+            }
+        }
+    })
 
 </script>
 {% endblock javascript %}
