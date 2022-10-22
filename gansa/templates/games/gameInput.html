@@ -94,7 +94,7 @@
         results.push($("#4Form").serializeArray())
         results.push($("#semiForm").serializeArray())
         results.push($("#finalForm").serializeArray())
-        console.log(results)
+        
         $.ajax({
             url: '/quiniela/games/{{tournament.id}}',
             type: 'POST',
