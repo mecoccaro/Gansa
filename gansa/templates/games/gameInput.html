@@ -365,9 +365,7 @@
     $('#groupForm').click( function () {
         var table, tableName, prev, x
         for(i=0; i <= groups.length; i++){
-            if (groups[i] == 'C') { //Avoid C group and beyond just for testing
-                break
-            }
+            
             tableName = groups[i] + 'InTable'
             table =  document.getElementById(tableName)
             rows = table.rows
@@ -429,19 +427,26 @@
             var teamA = $(`span[name=teamA][id=q${i}]`).text()
             var teamB = $(`span[name=teamB][id=q${i}]`).text()
             var teamW, side, winner
+            var tab = 8
             side = i%2 == 0 ? 'B' : 'A'
+            if (i == 2 || i == 4) {
+                tab = 7
+            } else if (i == 5 || i == 7){
+                tab = 5
+            } else if (i == 6 || i == 8){
+                tab = 4
+            }
             if (resA == resB){
                 teamW = $(`[id=q${i}] option:selected`).text()
-                console.log(teamW)
             }
             if (resA > resB) { // +8 to q 4tos
-                $(`span[name=team${side}][id='q${i+8}']`).text(teamA)
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamA)
                 winner = teamA
             } else if (resA < resB) {
-                $(`span[name=team${side}][id='q${i+8}']`).text(teamB)
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamB)
                 winner = teamB
             } else { // Case tie, check how to get value from drop down
-                $(`span[name=team${side}][id='q${i+8}']`).text(teamW)
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamW)
                 winner = teamW
             }
             $('<input>').attr({
@@ -509,6 +514,16 @@
                 $(`span[name=team${side}][id='final']`).text(teamW)
                 winner = teamW
             }
+            if(teamA.length > 0){
+                $('#finale').append(`
+                <option value=${teamA}>${teamA}</option>
+                `)
+            } else if (teamB.length > 0) {
+                $('#finale').append(`
+                <option value=${teamB}>${teamB}</option>
+                `)
+            }
+            
             $('<input>').attr({
                 type: 'hidden',
                 id: `semi${i}`,
@@ -518,8 +533,7 @@
         }
     })
 
-    $('#final').click( function (){
-        
+    $('#modalSubmit').click( function (){
         resA = $(`input[name=resA][id=fina;]`).val()
         resB = $(`input[name=resB][id=final]`).val()
         var teamA = $(`span[name=teamA][id=final]`).text()

@@ -6,7 +6,6 @@ from .formGames import GameFormGroups, GamesFormSet
 from .models import QuinielaTournament, Teams, UserQuiniela, Game, GameQuinielaGroups, GameQuinielaQualify
 import json
 
-
 def index(request):
     return HttpResponse("Gansa. Propiedad de gansa 2022.")
 
@@ -134,7 +133,7 @@ def gamesView2(request, qt_id):
                     if gameIds not in results[phase]:
                         results[phase][gameIds] = {}
                     continue
-                if count > 0 and res['name'] == 'winnerTeam':
+                if count > 0 and res['name'] == 'winnerTeam' and phase != 'final':
                     insideArr = inner[idx+1]
                     gameIds = insideArr['value']
                     if gameIds not in results[phase]:
@@ -147,40 +146,52 @@ def gamesView2(request, qt_id):
                 if res['name'] == 'resB':
                     results[phase][gameIds]['teamB'] = res['value']
                     continue
-            count += 1   
+                if phase == 'final':
+                    results[phase][gameIds]['winnerTeam'] = res['value']
+            count += 1
         print(json.dumps(results))
+        qualyTypes = []
+        for i in range(13):
+            qualyTypes.append('q'+str(i))
+        qualyTypes.append('semi1')
+        qualyTypes.append('semi2')
+        qualyTypes.append('final')
         for keys in results.keys():
-            resA = results[keys]['teamA']
-            resB = results[keys]['teamB']
-            gamePhase = keys[0:1]
-            semi = keys[0:4]
-            if(gamePhase != 'q' and semi != 'semi' and keys != 'final'): #groups
-                games = GameQuinielaGroups()
-                gameTeams = Game.objects.get(gameId=keys)
-                teamA = Teams.objects.get(name=gameTeams.teamA.name)
-                teamB = Teams.objects.get(name=gameTeams.teamB.name)
-                tie = Teams.objects.get(name='None')
-                if  resA > resB:
-                    games.winner = teamA
-                elif resB > resA:
-                    games.winner = teamB
-                else:
-                    gameGroups.winner = tie
-            else: # qualy games
-                games = GameQuinielaQualify()
-                teamName = results[keys]['winnerTeam']
-                if teamName:
-                    winner = Teams.objects.get(name=teamName)
-                elif (keys == 'final'):
-                    test = 'test'
-                else:
-                    winner = Teams.objects.get(name='None')
-                games.winner = winner
-            games.user_quiniela = userQuiniela
-            games.scoreA = resA
-            games.scoreB = resB
-            games.gameId = keys
-            #gameGroups.save()
+            phase = keys
+            for gameIds in results[phase].keys():
+                if gameIds not in qualyTypes:
+                    continue
+                resA = results[phase][gameIds]['teamA']
+                resB = results[phase][gameIds]['teamB']
+                if len(resA) == 0:
+                    resA = 0
+                elif len(resA) == 0:
+                    resB = 0
+                if(phase == 'groups'): #groups
+                    games = GameQuinielaGroups()
+                    gameTeams = Game.objects.get(gameId=gameIds)
+                    teamA = Teams.objects.get(name=gameTeams.teamA.name)
+                    teamB = Teams.objects.get(name=gameTeams.teamB.name)
+                    tie = Teams.objects.get(name='None')
+                    if  resA > resB:
+                        games.winner = teamA
+                    elif resB > resA:
+                        games.winner = teamB
+                    else:
+                        games.winner = tie
+                else: # qualy games
+                    games = GameQuinielaQualify()
+                    teamName = results[phase][gameIds]['winnerTeam']
+                    if teamName:
+                        winner = Teams.objects.get(name=teamName)
+                    else:
+                        winner = Teams.objects.get(name='None')
+                    games.winner = winner
+                games.user_quiniela = userQuiniela
+                games.scoreA = resA
+                games.scoreB = resB
+                games.gameId = gameIds
+                games.save()
         return redirect('tournament', tournament_id=qt_id)
 
     context = {
