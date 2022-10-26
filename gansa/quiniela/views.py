@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
@@ -191,7 +191,14 @@ def gamesView2(request, qt_id):
                 games.scoreA = resA
                 games.scoreB = resB
                 games.gameId = gameIds
-                games.save()
+                try:
+                    games.save()
+                except Exception as e:
+                    raise HttpResponseBadRequest("Error while saving results: {}".format(e))
+                else:
+                    userQuiniela.filled = True
+                    userQuiniela.save()
+
         return redirect('tournament', tournament_id=qt_id)
 
     context = {
