@@ -10866,6 +10866,12 @@ a:focus {
   background-size: cover;
 }
 
+.bg-tournament-image {
+  background: url("../superC.jpg");
+  background-position: center;
+  background-size: cover;
+}
+
 .bg-register-image {
   background: url("../gansa-chill.jpg");
   background-position: center;
