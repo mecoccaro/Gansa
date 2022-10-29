@@ -105,7 +105,7 @@
         });
         
         $('#myModal').modal('hide');
-        window.location.replace('/quiniela/tournament/{{tournament.id}}');
+        //window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
     
     function sortTable(tableName) {
@@ -202,107 +202,140 @@
         var tableId = '#' + this.id.slice(0,1) + 'Table'
         var teamA = $(`span[name=teamA][id=${this.id}]`).text()
         var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        var a,b, resO
         if(this.name == 'resA') {
-            var resB = $(`input[name=resB][id=${this.id}]`).val()
-            if (resB.length != 0 && res.length != 0){
-                if (res > resB) {
-                    $this = $('#' + teamA).find("td"); // win case for teamA
-                    val = $this.eq(1).text()
-                    res = parseInt(val) + 1
-                    $this.eq(1).html(res);
-                    val = $this.eq(4).text() // add 3 points to the points row
-                    res = parseInt(val) + 3
-                    $this.eq(4).html(res)
-
-                    $this = $('#' + teamB).find("td");
-                    val = $this.eq(2).text()
-                    res = parseInt(val) + 1
-                    $this.eq(2).html(res);
-                    $(this).data('val', 'W')
-                } else if (res < resB) {
-                    $this = $('#' + teamB).find("td"); // win case for teamB
-                    val = $this.eq(1).text()
-                    res = parseInt(val) + 1
-                    $this.eq(1).html(res);
-                    val = $this.eq(4).text() // add 3 points to the points row
-                    res = parseInt(val) + 3
-                    $this.eq(4).html(res)
-
-                    $this = $('#' + teamA).find("td");
-                    val = $this.eq(2).text()
-                    res = parseInt(val) + 1
-                    $this.eq(2).html(res);
-                    $(this).data('val', 'L'); // set lose state for teamA
-                } else {
-                    $this = $('#' + teamA).find("td");
-                    val = $this.eq(3).text()
-                    res = parseInt(val) + 1
-                    $this.eq(3).html(res);
-                    val = $this.eq(4).text() //points row
-                    res = parseInt(val) + 1
-                    $this.eq(4).html(res)
-
-                    $this = $('#' + teamB).find("td");
-                    val2 = $this.eq(3).text()
-                    res = parseInt(val2) + 1
-                    $this.eq(3).html(res);
-                    val = $this.eq(4).text() //points row
-                    res = parseInt(val) + 1
-                    $this.eq(4).html(res)
-                    $(this).data('val', 'T');
-                }
+            resO = $(`input[name=resB][id=${this.id}]`).val()
+        }else{
+            resO = $(`input[name=resA][id=${this.id}]`).val()
+        }
+        if (resO.length != 0 && res.length != 0){
+            var pointA = 0
+            var win = 0, winB = 0, lose=0, loseB = 0, tie = 0, tieB = 0, tt
+            var pointB = 0
+            for (i=1; i<=6; i++){
+                teamA = $(`span[name=teamA][id=${group+i}]`).text()
+                teamB = $(`span[name=teamB][id=${group+i}]`).text()
+                $this = $('#' + teamA).find("td");
+                $this.eq(1).html(0);
+                $this.eq(2).html(0);
+                $this.eq(3).html(0);
+                $this.eq(4).html(0);
+                
+                $this = $('#' + teamB).find("td");
+                $this.eq(1).html(0);
+                $this.eq(2).html(0);
+                $this.eq(3).html(0);
+                $this.eq(4).html(0);
             }
-        } else {
-            var resA = $(`input[name=resA][id=${this.id}]`).val()
-            res = this.value
-            if (resA.length != 0 && res.length != 0) {
-                if (res > resA) {
-                    $this = $('#' + teamB).find("td")
-                    val = $this.eq(1).text() // add one point to the W row
-                    res = parseInt(val) + 1
-                    $this.eq(1).html(res)
-                    val = $this.eq(4).text() // add 3 points to the points row
-                    res = parseInt(val) + 3
-                    $this.eq(4).html(res)
-                    $this = $('#' + teamA).find("td")
-                    val = $this.eq(2).text() // add one ppint to the L row
-                    res = parseInt(val) + 1
-                    $this.eq(2).html(res)
-                    $(this).data('val', 'W');
-                } else if (res < resA) {
-                    $this = $('#' + teamA).find("td")
-                    val = $this.eq(1).text()
-                    res = parseInt(val) + 1
-                    $this.eq(1).html(res)
-                    val = $this.eq(4).text() //point row
-                    res = parseInt(val) + 3
+            for(j=1; j<=6; j++){
+                tt = group + j
+                teamA = $(`span[name=teamA][id=${tt}]`).text()
+                teamB = $(`span[name=teamB][id=${tt}]`).text()
+                resA = $(`input[name=resA][id=${tt}]`).val()
+                resB = $(`input[name=resB][id=${tt}]`).val()
+                if (resA.length < 1 || resB.length < 1){
+                    continue
+                }
+                teamA = $(`span[name=teamA][id=${tt}]`).text()
+                teamB = $(`span[name=teamB][id=${tt}]`).text()
+                if (resA > resB) {
+                    $this = $('#' + teamA).find("td"); // win case for teamA
+                    if($this.eq(1).text() == 0 ){
+                        win = 0
+                    } else {
+                        win = parseInt($this.eq(1).text())
+                    }
+                    win += 1
+                    res = win
+                    $this.eq(1).html(res);
+                    if($this.eq(4).text() == 0 ){
+                        pointA = 0
+                    } else {
+                        pointA = parseInt($this.eq(4).text())
+                    }
+                    pointA += 3
+                    res = pointA
                     $this.eq(4).html(res)
 
                     $this = $('#' + teamB).find("td");
-                    val = $this.eq(2).text()
-                    res = parseInt(val) + 1
-                    $this.eq(2).html(res)
-                    $(this).data('val', 'L');
+                    if($this.eq(2).text() == 0 ){
+                        loseB = 0
+                    } else {
+                        loseB = parseInt($this.eq(2).text())
+                    }
+                    loseB += 1
+                    res = loseB
+                    $this.eq(2).html(res);
+                }  else if (resA < resB) { //TeamB winner case
+                    $this = $('#' + teamB).find("td");
+                    if($this.eq(1).text() == 0 ){
+                        winB = 0
+                    } else {
+                        winB = parseInt($this.eq(1).text())
+                    }
+                    winB += 1
+                    res = winB
+                    $this.eq(1).html(res);
+                    if($this.eq(4).text() == 0 ){
+                        pointB = 0
+                    } else {
+                        pointB = parseInt($this.eq(4).text())
+                    }
+                    pointB += 3
+                    res = pointB
+                    $this.eq(4).html(res)
+
+                    $this = $('#' + teamA).find("td");
+                    if($this.eq(2).text() == 0 ){
+                        lose = 0
+                    } else {
+                        lose = parseInt($this.eq(2).text())
+                    }
+                    lose += 1
+                    res = lose
+                    $this.eq(2).html(res);
                 } else {
-                    $this = $('#' + teamA).find("td")// tie case
-                    val = $this.eq(3).text()
-                    res = parseInt(val) + 1
-                    $this.eq(3).html(res)
+                    $this = $('#' + teamA).find("td");
+                    if($this.eq(3).text() == 0 ){
+                        tie = 0
+                    } else {
+                        tie = parseInt($this.eq(3).text())
+                    }
+                    tie += 1
+                    res = tie
+                    $this.eq(3).html(res);
                     val = $this.eq(4).text() //points row
-                    res = parseInt(val) + 1
+                    if($this.eq(4).text() == 0 ){
+                        pointA = 0
+                    } else {
+                        pointA = parseInt($this.eq(4).text())
+                    }
+                    pointA += 1
+                    res = pointA
                     $this.eq(4).html(res)
-                   
-                    $this = $('#' + teamB).find("td")
-                    val = $this.eq(3).text()
-                    res = parseInt(val) + 1
-                    $this.eq(3).html(res)
+
+                    $this = $('#' + teamB).find("td");
+                    if($this.eq(3).text() == 0 ){
+                        tieB = 0
+                    } else {
+                        tieB = parseInt($this.eq(3).text())
+                    }
+                    tieB += 1
+                    res = tieB
+                    $this.eq(3).html(res);
                     val = $this.eq(4).text() //points row
-                    res = parseInt(val) + 1
+                    if($this.eq(4).text() == 0 ){
+                        pointB = 0
+                    } else {
+                        pointB = parseInt($this.eq(4).text())
+                    }
+                    pointB += 1
+                    res = pointB
                     $this.eq(4).html(res)
-                    $(this).data('val', 'T');
                 }
             }
         }
+       
     })
     $('input').focusout( function(){ // Sort table
         var group = this.id.slice(0,1)
@@ -319,48 +352,6 @@
         }
     })
     
-    $('input').change( function(){ //In case the user change the scores check that
-        var prev = $(this).data('val')
-        var res = $(this).val();
-        var prevRes = $(this).data('result')
-        var teamA = $(`span[name=teamA][id=${this.id}]`).text()
-        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
-        var winT
-        var loseT
-        if (res != prevRes && prevRes) {
-            if (prev && prev == 'W') {
-                if(this.name == 'resA') {
-                    winT = teamA
-                } else {
-                    winT = teamB
-                }
-                $this = $('#' + winT).find("td");
-                val = $this.eq(1).text()
-                res = parseInt(val) - 1
-                $this.eq(1).html(res);
-            } else if (prev && prev == 'L') {
-                if(this.name == 'resA') {
-                    loseT = teamB
-                } else {
-                    loseT = teamA
-                }
-                $this = $('#' + loseT).find("td");
-                val = $this.eq(2).text()
-                res = parseInt(val) - 1
-                $this.eq(2).html(res);
-            } else if (prev && prev == 'T') {
-                $this = $('#' + teamA).find("td");
-                val = $this.eq(3).text()
-                res = parseInt(val) - 1
-                $this.eq(3).html(res);
-
-                $this = $('#' + teamB).find("td");
-                val2 = $this.eq(3).text()
-                res = parseInt(val2) - 1
-                $this.eq(3).html(res);
-            }
-        }
-    });
 
     $('#groupForm').click( function () {
         var table, tableName, prev, x
@@ -516,11 +507,7 @@
             }
             if(teamA.length > 0){
                 $('#finale').append(`
-                <option value=${teamA}>${teamA}</option>
-                `)
-            } else if (teamB.length > 0) {
-                $('#finale').append(`
-                <option value=${teamB}>${teamB}</option>
+                <option value=${winner}>${winner}</option>
                 `)
             }
             

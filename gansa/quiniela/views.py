@@ -133,7 +133,6 @@ def gamesView(request, qt_id):
                 if phase == 'final':
                     results[phase][gameIds]['winnerTeam'] = res['value']
             count += 1
-        print(json.dumps(results))
         qualyTypes = []
         for i in range(13):
             qualyTypes.append('q'+str(i))
@@ -143,8 +142,6 @@ def gamesView(request, qt_id):
         for keys in results.keys():
             phase = keys
             for gameIds in results[phase].keys():
-                if gameIds not in qualyTypes:
-                    continue
                 resA = results[phase][gameIds]['teamA']
                 resB = results[phase][gameIds]['teamB']
                 if len(resA) == 0:
@@ -163,6 +160,11 @@ def gamesView(request, qt_id):
                         games.winner = teamB
                     else:
                         games.winner = tie
+                    games.user_quiniela = userQuiniela
+                    games.scoreA = resA
+                    games.scoreB = resB
+                    games.gameId = gameIds
+                    games.save()
                 else: # qualy games
                     games = GameQuinielaQualify()
                     teamName = results[phase][gameIds]['winnerTeam']
@@ -171,17 +173,14 @@ def gamesView(request, qt_id):
                     else:
                         winner = Teams.objects.get(name='None')
                     games.winner = winner
-                games.user_quiniela = userQuiniela
-                games.scoreA = resA
-                games.scoreB = resB
-                games.gameId = gameIds
-                try:
+                    games.user_quiniela = userQuiniela
+                    games.scoreA = resA
+                    games.scoreB = resB
+                    games.gameId = gameIds
                     games.save()
-                except Exception as e:
-                    raise HttpResponseBadRequest("Error while saving results: {}".format(e))
-                else:
-                    userQuiniela.filled = True
-                    userQuiniela.save()
+                
+                userQuiniela.filled = True
+                userQuiniela.save()
 
         return redirect('tournament', tournament_id=qt_id)
 
