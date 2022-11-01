@@ -21,6 +21,12 @@
                             </nav>
                         </div>
                         {% csrf_token %}
+                        <div class="p-3 mb-2 bg-info text-dark">
+                            <h3>Goleador</h3>
+                            <p>
+                                {{goaler}}
+                            </p>
+                        </div>
                         {% for i in groupsIds %}
                         <h3>Grupo {{ i }}</h3>
                             {% for keys, values in games.items %}
@@ -84,8 +90,10 @@
                                 <input type="number" value="{{values.scoreA}}" style="width:10%" readonly>
                                 <input type="number" value="{{values.scoreB}}" style="width:10%" readonly>
                             </div>
-                            <h4>CAMPEÓN</h4>
-                            <span class="input-group-text" style="width: 30%;">{{ values.winner.name }}</span>
+                            <div class="p-3 mb-2 bg-warning text-dark" style="text-align: center; margin-top: 10px;">
+                                <h4>CAMPEÓN</h4>
+                                <h2 class="bg-light">{{ values.winner.name }}</h2>
+                            </div>
                         {% endif %}
                         {% endfor %}
                     </div>

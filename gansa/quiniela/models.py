@@ -38,6 +38,7 @@ class QuinielaTournament(models.Model):
 
 class UserQuiniela(models.Model):
     points = models.FloatField()
+    goaler = models.TextField(null=True)
     filled = models.BooleanField(default=False, null=False)
     quiniela_fk = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     djuser_fk = models.ForeignKey(DJuser, on_delete=models.CASCADE)
