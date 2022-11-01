@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn gansa.wsgi
+web: gunicorn gansa.config.settings.wsgi
