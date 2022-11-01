@@ -17,7 +17,11 @@
 																<ol class="breadcrumb">
 																	<li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
 																	<li class="breadcrumb-item"><a href="#">Tabla</a></li>
-																	<li class="breadcrumb-item"><a href="{% url 'games' tournament.id %}">Mis juegos</a></li>
+																	{% if userQuiniela.filled %}
+																		<li class="breadcrumb-item"><a href="{% url 'preview' userQuiniela.id %}">Mis resultados</a></li>
+																	{% else %}
+																		<li class="breadcrumb-item"><a href="{% url 'games' tournament.id %}">Llenar juegos</a></li>
+																	{% endif %}
 																	<li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
 																</ol>
 															</nav>

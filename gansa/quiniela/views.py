@@ -3,8 +3,12 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from .formGames import GameFormGroups, GamesFormSet
-from .models import QuinielaTournament, Teams, UserQuiniela, Game, GameQuinielaGroups, GameQuinielaQualify
+from .models import *
 import json
+from django.core import serializers
+
+groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
 
 def index(request):
     return HttpResponse("Gansa. Propiedad de gansa 2022.")
@@ -43,38 +47,18 @@ def userHome(request):
 def tournamentView(request, tournament_id):
     try:
         tournament = QuinielaTournament.objects.get(id=tournament_id)
+        userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
     except:
         raise Http404("Tournament does not exist")
     users = UserQuiniela.objects.filter(quiniela_fk=tournament_id).order_by('-points')
-    context = {'tournament': tournament, 'user': users}
+    context = {
+        'tournament': tournament, 
+        'user': users,
+        'userQuiniela': userQuiniela}
     return render(request, 'user/tournament.html', context)
 
 
 def gamesView(request, qt_id):
-    formset = GamesFormSet()
-    if request.method == 'GET':
-        form = GameFormGroups()
-        context = {'form': form, 'qt_id': qt_id}
-        return render(request, 'games/gameInput.html', context)
-
-    if request.method == 'POST':
-        form = GameFormGroups(request.POST)
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Successfully saved form')
-        return redirect('/quiniela/home')
-    else:
-        print('Form is not valid')
-        messages.error(request, 'Error Processing Your Request')
-        context = {'form': form}
-        return render(request, '/quiniela/home', context)
-
-    return render(request, '/quiniela/home', {})
-
-
-def gamesView2(request, qt_id):
-    groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos']
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
@@ -149,7 +133,6 @@ def gamesView2(request, qt_id):
                 if phase == 'final':
                     results[phase][gameIds]['winnerTeam'] = res['value']
             count += 1
-        print(json.dumps(results))
         qualyTypes = []
         for i in range(13):
             qualyTypes.append('q'+str(i))
@@ -159,8 +142,6 @@ def gamesView2(request, qt_id):
         for keys in results.keys():
             phase = keys
             for gameIds in results[phase].keys():
-                if gameIds not in qualyTypes:
-                    continue
                 resA = results[phase][gameIds]['teamA']
                 resB = results[phase][gameIds]['teamB']
                 if len(resA) == 0:
@@ -179,6 +160,11 @@ def gamesView2(request, qt_id):
                         games.winner = teamB
                     else:
                         games.winner = tie
+                    games.user_quiniela = userQuiniela
+                    games.scoreA = resA
+                    games.scoreB = resB
+                    games.gameId = gameIds
+                    games.save()
                 else: # qualy games
                     games = GameQuinielaQualify()
                     teamName = results[phase][gameIds]['winnerTeam']
@@ -187,17 +173,14 @@ def gamesView2(request, qt_id):
                     else:
                         winner = Teams.objects.get(name='None')
                     games.winner = winner
-                games.user_quiniela = userQuiniela
-                games.scoreA = resA
-                games.scoreB = resB
-                games.gameId = gameIds
-                try:
+                    games.user_quiniela = userQuiniela
+                    games.scoreA = resA
+                    games.scoreB = resB
+                    games.gameId = gameIds
                     games.save()
-                except Exception as e:
-                    raise HttpResponseBadRequest("Error while saving results: {}".format(e))
-                else:
-                    userQuiniela.filled = True
-                    userQuiniela.save()
+                
+                userQuiniela.filled = True
+                userQuiniela.save()
 
         return redirect('tournament', tournament_id=qt_id)
 
@@ -206,3 +189,28 @@ def gamesView2(request, qt_id):
         'th': tableHeaders, 'teamsGroups': teamsGroups
         }
     return render(request, 'games/gameInput.html', context)
+
+def gamesPreview(request, uq_id):
+    try:
+        groupGames = GameQuinielaGroups.objects.filter(user_quiniela_id=uq_id)
+        qualy = GameQuinielaQualify.objects.filter(user_quiniela_id=uq_id)
+        userQuiniela = UserQuiniela.objects.get(id=uq_id)
+    except Exception as e:
+        raise Http404("Games not found: {}".format(e))
+    games = {}
+    for g in groupGames:
+        game = Game.objects.get(gameId=g.gameId)
+        games[g.gameId] = {}
+        games[g.gameId]['teamA'] = game.teamA.name
+        games[g.gameId]['teamB'] = game.teamB.name
+        games[g.gameId]['resA'] = g.scoreA
+        games[g.gameId]['resB'] = g.scoreB
+    
+    context = {
+        'tournament_id': userQuiniela.quiniela_fk_id,
+        'groups': groupGames,
+        'qualy': qualy,
+        'games': games,
+        'groupsIds': groupsIds
+        }
+    return render(request, 'games/gamesPreview.html', context)
