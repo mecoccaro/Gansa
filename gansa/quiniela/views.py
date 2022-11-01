@@ -132,6 +132,8 @@ def gamesView(request, qt_id):
                     continue
                 if phase == 'final':
                     results[phase][gameIds]['winnerTeam'] = res['value']
+                if res['name'] == 'goaler':
+                    results['goaler'] = res['value']
             count += 1
         qualyTypes = []
         for i in range(13):
@@ -180,6 +182,7 @@ def gamesView(request, qt_id):
                     games.save()
                 
                 userQuiniela.filled = True
+                userQuiniela.goaler = results['goaler']
                 userQuiniela.save()
 
         return redirect('tournament', tournament_id=qt_id)
@@ -211,6 +214,7 @@ def gamesPreview(request, uq_id):
         'groups': groupGames,
         'qualy': qualy,
         'games': games,
-        'groupsIds': groupsIds
+        'groupsIds': groupsIds,
+        'goaler': userQuiniela.goaler
         }
     return render(request, 'games/gamesPreview.html', context)
