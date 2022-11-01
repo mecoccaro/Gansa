@@ -14,6 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import dj_database_url
+import django_heroku
 
 load_dotenv()
 
@@ -148,3 +149,5 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Activate Django-Heroku.
+django_heroku.settings(locals())
