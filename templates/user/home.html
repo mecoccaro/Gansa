@@ -2,10 +2,11 @@
 {% block title %} Gansa {% endblock %}
 <body>
 {% load static %}
+{% load has_group %}
 {% block content %}
-{% if perms.app_label.family %}
+{% if request.user|has_group:"Family" %}
     {% include "user/tournament-card-fam.html" %}
-{% elif perms.app_label.edFriends %}
+{% elif request.user|has_group:"edFriends" %}
     {% include "user/tournament-card-edf.html" %}
     <p><a href="{% url 'logout' %}">Log Out</a></p>
 {% else %}
