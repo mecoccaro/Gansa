@@ -85,6 +85,7 @@
 {% block javascript %}
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var goaler
     $("#modalSubmit").click(function (e) { //Submit game forms
         e.preventDefault();
         var results = []
@@ -94,7 +95,8 @@
         results.push($("#4Form").serializeArray())
         results.push($("#semiForm").serializeArray())
         results.push($("#finalForm").serializeArray())
-        
+        results.push([{'name': 'goaler', 'value': goaler}])
+
         $.ajax({
             url: '/quiniela/games/{{tournament.id}}',
             type: 'POST',
@@ -105,7 +107,7 @@
         });
         
         $('#myModal').modal('hide');
-        //window.location.replace('/quiniela/tournament/{{tournament.id}}');
+        window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
     
     function sortTable(tableName) {
@@ -351,7 +353,15 @@
             sortTable(tabName)
         }
     })
-    
+    function hide(value){
+        var select = document.getElementById(value + '-select');
+        select.style.visibility = 'hidden';
+    }
+
+    function show(value){
+        var select = document.getElementById(value + '-select');
+        select.style.visibility = 'visible';
+    }
 
     $('#groupForm').click( function () {
         var table, tableName, prev, x
@@ -361,27 +371,52 @@
             table =  document.getElementById(tableName)
             rows = table.rows
             prev = 0
-            var maxTeam, secTeam, maxPoints
-            // Extra validation to know maxTeam = 1st team and secTeam = 2nd team in table
-            for (j=1; j < (rows.length - 1); j++) {
+            var maxTeam, secTeam, maxPoints, cases = 0 // qualy cases 0 = points; case 1 = tie 
+            var points = []
+            for (j=1; j < (rows.length); j++) { // append points to check repeated
                 x = rows[j].getElementsByTagName("TD")[4];
-                teamN = rows[j].getElementsByTagName("TD")[0];
-                if (Number(x.innerHTML) > prev) {
-                   prev = Number(x.innerHTML)
-                   maxPoints = Number(x.innerHTML)
-                   maxTeam = teamN.innerHTML
-                }
+                points.push(x.innerHTML)
             }
-            prev = 0
-            for (k=1; k < (rows.length - 1); k++) {
-                x = rows[k].getElementsByTagName("TD")[4];
-                teamN = rows[k].getElementsByTagName("TD")[0];
-                if (teamN.innerHTML == maxTeam) { continue }
-                if (Number(x.innerHTML) > prev) {
-                   prev = Number(x.innerHTML)
-                   secTeam = teamN.innerHTML
+            var stores = 0, reps = []
+            for (j=0; j <= (points.length-1); j++) { // check if there are repeated games
+                var rep = false
+                if (stores == points[j])
+                    reps.push(j)
+                if (reps.length != 0 && j == points.length-1) {
+                    cases = 0
+                } else if (reps.length > 0) {
+                    if (j < 3) {
+                        cases = 1
+                        break
+                    }
                 }
+                stores = points[j]
             }
+            points = []
+            if (cases == 0) { // If there are no repeated on points, validate the first and secod to qualify
+                for (j=1; j < (rows.length - 1); j++) {
+                    x = rows[j].getElementsByTagName("TD")[4];
+                    teamN = rows[j].getElementsByTagName("TD")[0];
+                    if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    maxPoints = Number(x.innerHTML)
+                    maxTeam = teamN.innerHTML
+                    }
+                }
+                prev = 0
+                for (k=1; k < (rows.length - 1); k++) {
+                    x = rows[k].getElementsByTagName("TD")[4];
+                    teamN = rows[k].getElementsByTagName("TD")[0];
+                    if (teamN.innerHTML == maxTeam) { continue }
+                    if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    secTeam = teamN.innerHTML
+                    }
+                }
+            } else { // tie case
+                console.log('tie')
+            }
+            
             // Add qualificated teams to the 8 group form
             if (groups[i] == 'A') {
                 $(`span[name=teamA][id='q1']`).text(maxTeam)
@@ -428,7 +463,7 @@
                 tab = 4
             }
             if (resA == resB){
-                teamW = $(`[id=q${i}] option:selected`).text()
+                teamW = $(`[id=q${i}-select] option:selected`).text()
             }
             if (resA > resB) { // +8 to q 4tos
                 $(`span[name=team${side}][id='q${i+tab}']`).text(teamA)
@@ -458,7 +493,7 @@
             var side, s, teamW
             side = i%2 == 0 ? 'B' : 'A'
             if (resA == resB){
-                teamW = $(`[id=q${i}] option:selected`).text()
+                teamW = $(`[id=q${i}-select] option:selected`).text()
             }
             if (i == 9 || i == 10) { // s means semi for calc semi side
                 s = 2
@@ -493,7 +528,7 @@
             var side, teamW
             side = i%2 == 0 ? 'B' : 'A'
             if (resA == resB){
-                teamW = $(`[id=semi${i}] option:selected`).text()
+                teamW = $(`[id=semi${i}-select] option:selected`).text()
             }
             if (resA > resB) {
                 $(`span[name=team${side}][id='final']`).text(teamA)
@@ -520,8 +555,13 @@
         }
     })
 
+    $('#finalSubmit').click( function () {
+        resA = $(`input[id=goaler]`).val();
+        goaler = resA
+    })
+
     $('#modalSubmit').click( function (){
-        resA = $(`input[name=resA][id=fina;]`).val()
+        resA = $(`input[name=resA][id=final]`).val()
         resB = $(`input[name=resB][id=final]`).val()
         var teamA = $(`span[name=teamA][id=final]`).text()
         var teamB = $(`span[name=teamB][id=final]`).text()
@@ -536,14 +576,7 @@
         } else { // Case tie, check how to get value from drop down
             winner = teamW
         }
-        $('<input>').attr({
-            type: 'hidden',
-            id: `final`,
-            name: 'winnerTeam',
-            value: winner
-        }).appendTo(`#final`);
     })
-
 
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
@@ -560,15 +593,14 @@
             'teamA': teamA,
             'teamB': teamB
         }
-        var s = $(`<select name='winner' />`)
         if(this.name == 'resA') {
             var resB = $(`input[name=resB][id=${this.id}]`).val()
             if (resB.length != 0 && res.length != 0){
                 if (res == resB) {
+                    show(this.id)
                     for(var val in data) {
-                        $('<option />', {value: val, text: data[val]}).appendTo(s);
+                        $(`#${this.id}-select`).append(new Option(data[val],val))
                     }
-                    s.appendTo(`option[id=${this.id}]`);
                 }
             }
         } else {
@@ -576,10 +608,10 @@
             res = this.value
             if (resA.length != 0 && res.length != 0) {
                 if (res == resA) {
+                    show(this.id)
                     for(var val in data) {
-                        $('<option />', {value: val, text: data[val]}).appendTo(s);
+                        $(`#${this.id}-select`).append(new Option(data[val],val))
                     }
-                    s.appendTo(`option[id=${this.id}]`);
                 }
             }
         }

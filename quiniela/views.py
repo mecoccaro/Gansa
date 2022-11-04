@@ -112,6 +112,11 @@ def gamesView(request, qt_id):
                         phase = 'final'
                         results[phase] = {}
                         aux +=1
+                elif (count == 5):
+                    if aux == 5:
+                        phase = 'goaler'
+                        results[phase] = {}
+                        aux +=1
                 if res['name'] == 'gameId':
                     gameIds = res['value']
                     if gameIds not in results[phase]:
@@ -133,7 +138,7 @@ def gamesView(request, qt_id):
                 if phase == 'final':
                     results[phase][gameIds]['winnerTeam'] = res['value']
                 if res['name'] == 'goaler':
-                    results['goaler'] = res['value']
+                    results[phase] = res['value']
             count += 1
         qualyTypes = []
         for i in range(13):
@@ -143,47 +148,48 @@ def gamesView(request, qt_id):
         qualyTypes.append('final')
         for keys in results.keys():
             phase = keys
-            for gameIds in results[phase].keys():
-                resA = results[phase][gameIds]['teamA']
-                resB = results[phase][gameIds]['teamB']
-                if len(resA) == 0:
-                    resA = 0
-                elif len(resA) == 0:
-                    resB = 0
-                if(phase == 'groups'): #groups
-                    games = GameQuinielaGroups()
-                    gameTeams = Game.objects.get(gameId=gameIds)
-                    teamA = Teams.objects.get(name=gameTeams.teamA.name)
-                    teamB = Teams.objects.get(name=gameTeams.teamB.name)
-                    tie = Teams.objects.get(name='None')
-                    if  resA > resB:
-                        games.winner = teamA
-                    elif resB > resA:
-                        games.winner = teamB
-                    else:
-                        games.winner = tie
-                    games.user_quiniela = userQuiniela
-                    games.scoreA = resA
-                    games.scoreB = resB
-                    games.gameId = gameIds
-                    games.save()
-                else: # qualy games
-                    games = GameQuinielaQualify()
-                    teamName = results[phase][gameIds]['winnerTeam']
-                    if teamName:
-                        winner = Teams.objects.get(name=teamName)
-                    else:
-                        winner = Teams.objects.get(name='None')
-                    games.winner = winner
-                    games.user_quiniela = userQuiniela
-                    games.scoreA = resA
-                    games.scoreB = resB
-                    games.gameId = gameIds
-                    games.save()
-                
-                userQuiniela.filled = True
+            if phase != 'goaler':
+                for gameIds in results[phase].keys():
+                    resA = results[phase][gameIds]['teamA']
+                    resB = results[phase][gameIds]['teamB']
+                    if len(resA) == 0:
+                        resA = 0
+                    elif len(resA) == 0:
+                        resB = 0
+                    if(phase == 'groups'): #groups
+                        games = GameQuinielaGroups()
+                        gameTeams = Game.objects.get(gameId=gameIds)
+                        teamA = Teams.objects.get(name=gameTeams.teamA.name)
+                        teamB = Teams.objects.get(name=gameTeams.teamB.name)
+                        tie = Teams.objects.get(name='None')
+                        if  resA > resB:
+                            games.winner = teamA
+                        elif resB > resA:
+                            games.winner = teamB
+                        else:
+                            games.winner = tie
+                        games.user_quiniela = userQuiniela
+                        games.scoreA = resA
+                        games.scoreB = resB
+                        games.gameId = gameIds
+                        games.save()
+                    else: # qualy games
+                        games = GameQuinielaQualify()
+                        teamName = results[phase][gameIds]['winnerTeam']
+                        if teamName:
+                            winner = Teams.objects.get(name=teamName)
+                        else:
+                            winner = Teams.objects.get(name='None')
+                        games.winner = winner
+                        games.user_quiniela = userQuiniela
+                        games.scoreA = resA
+                        games.scoreB = resB
+                        games.gameId = gameIds
+                        games.save()
+            else:
                 userQuiniela.goaler = results['goaler']
-                userQuiniela.save()
+            userQuiniela.filled = True
+            userQuiniela.save()
 
         return redirect('tournament', tournament_id=qt_id)
 

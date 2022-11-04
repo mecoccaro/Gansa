@@ -7,8 +7,8 @@
             <div class="input-group">               
                 <span class="input-group-text" id="{{game.gameId}}" name="teamA" style="width: 30%;" value="{{ game.teamA }}">{{ game.teamA }}</span>
                 <input type="hidden" id='gameId' name="gameId" value="{{game.gameId}}" />
-                <input type="number" aria-label="First name" class="form-control" name="resA" id="{{game.gameId}}">
-                <input type="number" aria-label="Last name" class="form-control" name="resB" id="{{game.gameId}}">
+                <input type="number" aria-label="First name" class="form-control" name="resA" id="{{game.gameId}}" required>
+                <input type="number" aria-label="Last name" class="form-control" name="resB" id="{{game.gameId}}" required>
                 <span class="input-group-text" id="{{game.gameId}}" name="teamB" style="width: 30%;" value="{{ game.teamB }}">{{ game.teamB }}</span>
             </div>
             {% endif %}

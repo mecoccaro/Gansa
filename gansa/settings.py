@@ -11,12 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
 import os
 import dj_database_url
 import django_heroku
 
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f4v&90$4*7jhh1#rs+j=pbtotc6at336=k&g5tc$qhlnzlkx0%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG=str(os.environ.get('DEBUG')) == "1"
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'gansa-{}.herokuapp.com'.format(os.getenv('STAGE'))]
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'gansa-{}.herokuapp.com'.format(os.environ.get('STAGE'))]
 
 
 # Application definition
@@ -89,11 +87,11 @@ WSGI_APPLICATION = 'gansa.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASS'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT')
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT')
     }
 }
 db_from_env = dj_database_url.config(conn_max_age=600)

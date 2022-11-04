@@ -3,18 +3,18 @@
         <div class="input-group">               
             <span class="input-group-text" id="final" name="teamA" style="width: 30%;"></span>
             <input type="hidden" id='gameId' name="gameId" value="final" />
-            <input type="number" aria-label="First name" class="form-control" name="resA" id="final" placeholder="F1">
-            <input type="number" aria-label="Last name" class="form-control" name="resB" id="final" placeholder="F2">
+            <input type="number" aria-label="First name" class="form-control" name="resA" id="final" placeholder="F1" required>
+            <input type="number" aria-label="Last name" class="form-control" name="resB" id="final" placeholder="F2" required>
             <span class="input-group-text" id="final" name="teamB" style="width: 30%;"></span>
             
             <select name="winnerTeam" id="finale"></select>
             <div style="padding-left: 50px; padding-top: 10px;" >
                 <span class="input-group-text">Goleador</span>
-                <input type="text" id="goaler" />
+                <input type="text" id="goaler" required/>
             </div>
             
         </div>
 <div class="col-md-12">
-    <button class="btn btn-success w-100" type="button" id="final" data-toggle="modal" data-target="#myModal" >Enviar</button>
+    <button class="btn btn-success w-100" type="button" id="finalSubmit" data-toggle="modal" data-target="#myModal" >Enviar</button>
 </div>
 </form>
