@@ -197,6 +197,12 @@
 
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
+        if (res < 0) {
+            this.value = -this.value
+        }
+        if(!res.isInteger){
+            this.value = Math.ceil(this.value)
+        }
         var group = this.id.slice(0,1)
         if (group == 'q' || group == 's'|| group =='f') {
             return false
