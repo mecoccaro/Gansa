@@ -370,6 +370,17 @@
     }
 
     $('#groupForm').click( function () {
+        for (t=1; t <= 8; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         var table, tableName, prev, x
         for(i=0; i <= groups.length; i++){
             
