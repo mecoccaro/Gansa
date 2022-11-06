@@ -368,6 +368,15 @@
         var select = document.getElementById(value + '-select');
         select.style.visibility = 'visible';
     }
+    $('input').focusin( function (){
+        $(`#${this.id}-select option[value='teamA']`).each( function(){
+            $(this).remove();
+        })
+        $(`#${this.id}-select option[value='teamB']`).each( function(){
+            $(this).remove();
+        })
+        hide(`${this.id}`)
+    })
 
     $('#groupForm').click( function () {
         for (t=1; t <= 8; t++){
@@ -433,7 +442,6 @@
             } else { // tie case
                 console.log('tie')
             }
-            
             // Add qualificated teams to the 8 group form
             if (groups[i] == 'A') {
                 $(`span[name=teamA][id='q1']`).text(maxTeam)
@@ -464,6 +472,17 @@
     })
 
     $('#8vos').click( function (){
+        for (t=9; t <= 12; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         for (i=1; i <= 8 ; i++) {
             resA = $(`input[name=resA][id=q${i}]`).val()
             resB = $(`input[name=resB][id=q${i}]`).val()
@@ -502,6 +521,17 @@
     })
 
     $('#4tos').click( function (){
+        for (t=1; t <= 2; t++){
+            $(`span[name=teamA][id='semi${t}']`).text('')
+            $(`span[name=teamB][id='semi${t}']`).text('')
+            $(`#semi${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#semi${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         for (i=9; i <= 12 ; i++) {
             resA = $(`input[name=resA][id=q${i}]`).val()
             resB = $(`input[name=resB][id=q${i}]`).val()
@@ -537,6 +567,15 @@
     })
 
     $('#semi').click( function (){
+        $(`span[name=teamA][id='final']`).text('')
+        $(`span[name=teamB][id='final']`).text('')
+        $(`#finale option[value='teamA']`).each( function(){
+            $(this).remove();
+        })
+        $(`#finale option[value='teamB']`).each( function(){
+            $(this).remove();
+        })
+        hide(`q${t}`)
         for (i=1; i <= 2 ; i++) {
             resA = $(`input[name=resA][id=semi${i}]`).val()
             resB = $(`input[name=resB][id=semi${i}]`).val()
