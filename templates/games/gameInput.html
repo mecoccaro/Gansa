@@ -197,6 +197,12 @@
 
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
+        if (res < 0) {
+            this.value = -this.value
+        }
+        if(!res.isInteger){
+            this.value = Math.ceil(this.value)
+        }
         var group = this.id.slice(0,1)
         if (group == 'q' || group == 's'|| group =='f') {
             return false
@@ -362,8 +368,28 @@
         var select = document.getElementById(value + '-select');
         select.style.visibility = 'visible';
     }
+    $('input').focusin( function (){
+        $(`#${this.id}-select option[value='teamA']`).each( function(){
+            $(this).remove();
+        })
+        $(`#${this.id}-select option[value='teamB']`).each( function(){
+            $(this).remove();
+        })
+        hide(`${this.id}`)
+    })
 
     $('#groupForm').click( function () {
+        for (t=1; t <= 8; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         var table, tableName, prev, x
         for(i=0; i <= groups.length; i++){
             
@@ -398,9 +424,9 @@
                     x = rows[j].getElementsByTagName("TD")[4];
                     teamN = rows[j].getElementsByTagName("TD")[0];
                     if (Number(x.innerHTML) > prev) {
-                    prev = Number(x.innerHTML)
-                    maxPoints = Number(x.innerHTML)
-                    maxTeam = teamN.innerHTML
+                        prev = Number(x.innerHTML)
+                        maxPoints = Number(x.innerHTML)
+                        maxTeam = teamN.innerHTML
                     }
                 }
                 prev = 0
@@ -409,14 +435,129 @@
                     teamN = rows[k].getElementsByTagName("TD")[0];
                     if (teamN.innerHTML == maxTeam) { continue }
                     if (Number(x.innerHTML) > prev) {
-                    prev = Number(x.innerHTML)
-                    secTeam = teamN.innerHTML
+                        prev = Number(x.innerHTML)
+                        secTeam = teamN.innerHTML
                     }
                 }
             } else { // tie case
-                console.log('tie')
+                maxTeam = ''
+                secTeam = ''
+                for (j=1; j < (rows.length - 1); j++) {
+                    if (maxTeam != '' && secTeam != ''){
+                        break
+                    }
+                    goalsA = 0, goalsB = 0
+                    x = rows[j].getElementsByTagName("TD")[4];
+                    next = rows[j+1].getElementsByTagName("TD")[4];
+                    teamN = rows[j].getElementsByTagName("TD")[0];
+                    teamNB = rows[j+1].getElementsByTagName("TD")[0];
+                    if (Number(x.innerHTML) == Number(next.innerHTML)) {
+                        $(`span[value=${teamN.innerHTML}]`).each( function (){
+                            if ($(this).attr('name') == 'teamA'){
+                                side = 'resA'
+                                contra = 'resB'
+                            } else {
+                                side = 'resB'
+                                contra = 'resA'
+                            }
+                            goal = $(`input[id=${this.id}][name=${side}]`).val()
+                            con = $(`input[id=${this.id}][name=${contra}]`).val()
+                            totalGoalsA = Number(goal) + Number(goalsA)
+                            goalsA = Number(goal) + Number(goalsA) - Number(con)
+                        })
+                        goal = 0
+                        $(`span[value=${teamNB.innerHTML}]`).each( function (){
+                            if ($(this).attr('name') == 'teamA'){
+                                side = 'resA'
+                                contra = 'resB'
+                            } else {
+                                side = 'resB'
+                                contra = 'resA'
+                            }
+                            goal = $(`input[id=${this.id}][name=${side}]`).val()
+                            con = $(`input[id=${this.id}][name=${contra}]`).val()
+                            totalGoalsB = Number(goal) + Number(goalsB)
+                            goalsB = Number(goal) + Number(goalsB) - Number(con)
+                        })
+                        if (goalsA > goalsB){
+                            if(maxTeam != ''){
+                                secTeam = teamN.innerHTML
+                            } else {
+                                maxTeam = teamN.innerHTML
+                                secTeam = teamNB.innerHTML
+                            }
+                        } else if (goalsA < goalsB) {
+                            if(maxTeam != ''){
+                                secTeam = teamNB.innerHTML
+                            } else {
+                                maxTeam = teamNB.innerHTML
+                                secTeam = teamN.innerHTML
+                            }
+                        }
+                        if (goalsA == goalsB){
+                            if (totalGoalsA > totalGoalsB){
+                                if(maxTeam != ''){
+                                    secTeam = teamN.innerHTML
+                                } else {
+                                    maxTeam = teamN.innerHTML
+                                    secTeam = teamNB.innerHTML
+                                }
+                            } else if (totalGoalsA < totalGoalsB) {
+                                if(maxTeam != ''){
+                                    secTeam = teamNB.innerHTML
+                                } else {
+                                    maxTeam = teamNB.innerHTML
+                                    secTeam = teamN.innerHTML
+                                }
+                            }
+                        }
+                    } else if (Number(x.innerHTML) > Number(next.innerHTML) && j == 1) {
+                        maxTeam = teamN.innerHTML
+                        maxPoints = Number(x.innerHTML)
+                    }
+                }
+                if (maxTeam == '' || secTeam == '') {
+                    for (j=1; j < (rows.length - 1); j++) {
+                        x = rows[j].getElementsByTagName("TD")[4];
+                        next = rows[j+1].getElementsByTagName("TD")[4];
+                        teamN = rows[j].getElementsByTagName("TD")[0];
+                        teamNB = rows[j+1].getElementsByTagName("TD")[0];
+                        if (maxTeam != ''){
+                            continue;
+                        }
+                        $(`span[value=${teamN.innerHTML}]`).each( function (){
+                            if ($(this).attr('name') == 'teamA'){
+                                side = 'resA'
+                                contra = 'resB'
+                            } else {
+                                side = 'resB'
+                                contra = 'resA'
+                            }
+                            otherTeam = $(`span[id=${thi.id}]`).text()
+                            if (otherTeam == teamNB.innerHTML){
+                                goal = $(`input[id=${this.id}][name=${side}]`).val()
+                                con = $(`input[id=${this.id}][name=${contra}]`).val()
+                                if (goal > con){
+                                    if(maxTeam != ''){
+                                        secTeam = teamN.innerHTML
+                                    } else {
+                                        maxTeam = teamN.innerHTML
+                                        secTeam = teamNB.innerHTML
+                                    }
+                                } else {
+                                    if(maxTeam != ''){
+                                        secTeam = teamNB.innerHTML
+                                    } else {
+                                        maxTeam = teamNB.innerHTML
+                                        secTeam = teamN.innerHTML
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
             }
-            
+            console.log(maxTeam, secTeam)
             // Add qualificated teams to the 8 group form
             if (groups[i] == 'A') {
                 $(`span[name=teamA][id='q1']`).text(maxTeam)
@@ -447,6 +588,17 @@
     })
 
     $('#8vos').click( function (){
+        for (t=9; t <= 12; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         for (i=1; i <= 8 ; i++) {
             resA = $(`input[name=resA][id=q${i}]`).val()
             resB = $(`input[name=resB][id=q${i}]`).val()
@@ -485,6 +637,17 @@
     })
 
     $('#4tos').click( function (){
+        for (t=1; t <= 2; t++){
+            $(`span[name=teamA][id='semi${t}']`).text('')
+            $(`span[name=teamB][id='semi${t}']`).text('')
+            $(`#semi${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#semi${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
         for (i=9; i <= 12 ; i++) {
             resA = $(`input[name=resA][id=q${i}]`).val()
             resB = $(`input[name=resB][id=q${i}]`).val()
@@ -520,6 +683,15 @@
     })
 
     $('#semi').click( function (){
+        $(`span[name=teamA][id='final']`).text('')
+        $(`span[name=teamB][id='final']`).text('')
+        $(`#finale option[value='teamA']`).each( function(){
+            $(this).remove();
+        })
+        $(`#finale option[value='teamB']`).each( function(){
+            $(this).remove();
+        })
+        hide(`q${t}`)
         for (i=1; i <= 2 ; i++) {
             resA = $(`input[name=resA][id=semi${i}]`).val()
             resB = $(`input[name=resB][id=semi${i}]`).val()
@@ -616,6 +788,8 @@
             }
         }
     })
+
+    $('input').change()
 
 </script>
 {% endblock javascript %}
