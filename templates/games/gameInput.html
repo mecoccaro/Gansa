@@ -197,10 +197,10 @@
 
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
-        if (res < 0) {
+        if (res < 0 && !isNaN(res)) {
             this.value = -this.value
         }
-        if(!res.isInteger){
+        if(!res.isInteger && !isNaN(res)){
             this.value = Math.ceil(this.value)
         }
         var group = this.id.slice(0,1)
@@ -361,12 +361,22 @@
     })
     function hide(value){
         var select = document.getElementById(value + '-select');
-        select.style.visibility = 'hidden';
+        if (select){
+            select.style.visibility = 'hidden';
+        }
     }
 
     function show(value){
         var select = document.getElementById(value + '-select');
-        select.style.visibility = 'visible';
+        if (select){
+            select.style.visibility = 'visible';
+        }
+    }
+    function showFinal(value){
+        var select = document.getElementById(value);
+        if (select){
+            select.style.visibility = 'visible';
+        }
     }
     $('input').focusin( function (){
         $(`#${this.id}-select option[value='teamA']`).each( function(){
@@ -533,7 +543,7 @@
                                 side = 'resB'
                                 contra = 'resA'
                             }
-                            otherTeam = $(`span[id=${thi.id}]`).text()
+                            otherTeam = $(`span[id=${this.id}]`).text()
                             if (otherTeam == teamNB.innerHTML){
                                 goal = $(`input[id=${this.id}][name=${side}]`).val()
                                 con = $(`input[id=${this.id}][name=${contra}]`).val()
@@ -557,7 +567,6 @@
                     }
                 }
             }
-            console.log(maxTeam, secTeam)
             // Add qualificated teams to the 8 group form
             if (groups[i] == 'A') {
                 $(`span[name=teamA][id='q1']`).text(maxTeam)
@@ -685,10 +694,7 @@
     $('#semi').click( function (){
         $(`span[name=teamA][id='final']`).text('')
         $(`span[name=teamB][id='final']`).text('')
-        $(`#finale option[value='teamA']`).each( function(){
-            $(this).remove();
-        })
-        $(`#finale option[value='teamB']`).each( function(){
+        $(`#finale option[value='teamW']`).each( function(){
             $(this).remove();
         })
         hide(`q${t}`)
@@ -705,16 +711,23 @@
             if (resA > resB) {
                 $(`span[name=team${side}][id='final']`).text(teamA)
                 winner = teamA
+                loose = teamB
             } else if (resA < resB) {
                 $(`span[name=team${side}][id='final']`).text(teamB)
                 winner = teamB
+                loose = teamA
             } else { // Case tie, check how to get value from drop down
                 $(`span[name=team${side}][id='final']`).text(teamW)
                 winner = teamW
+                if (teamW == teamA){
+                    loose = teamB
+                } else {
+                    loose = teamA
+                }
             }
             if(teamA.length > 0){
                 $('#finale').append(`
-                <option value=${winner}>${winner}</option>
+                <option value=teamW>${winner}</option>
                 `)
             }
             
@@ -789,7 +802,31 @@
         }
     })
 
-    $('input').change()
+    $('input').focusout( function () {// Finale analisis
+        if (this.id != 'final') {
+            return;
+        }
+        console.log('out')
+        resA = $(`input[name=resA][id=final]`).val()
+        resB = $(`input[name=resB][id=final]`).val()
+        teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        console.log(teamA, teamB)
+        if (resA > resB) {
+            showFinal('finale')
+            $(`#finale option:contains(${teamB})`).each( function(){
+                $(this).remove();
+            })
+        } else if (resA < resB) {
+            showFinal('finale')
+            $(`#finale option:contains(${teamA})`).each( function(){
+                $(this).remove();
+            })
+        } else {
+            showFinal('finale')
+        }
+    })
+
 
 </script>
 {% endblock javascript %}
