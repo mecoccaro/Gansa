@@ -388,7 +388,7 @@
         hide(`${this.id}`)
     })
 
-    $('#groupForm').click( function () {
+    $('#groupForm').click( function () { // calculate groups and check ties
         for (t=1; t <= 8; t++){
             $(`span[name=teamA][id='q${t}']`).text('')
             $(`span[name=teamB][id='q${t}']`).text('')
