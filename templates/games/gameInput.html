@@ -388,6 +388,15 @@
         hide(`${this.id}`)
     })
 
+    function removeDuplicates(arr) {
+        return arr.filter((item,
+            index) => arr.indexOf(item) === index);
+    }
+
+    function allAreEqual(obj) {
+        return new Set(Object.values(obj)).size === 1;
+    }
+
     $('#groupForm').click( function () { // calculate groups and check ties
         for (t=1; t <= 8; t++){
             $(`span[name=teamA][id='q${t}']`).text('')
@@ -452,81 +461,90 @@
             } else { // tie case
                 maxTeam = ''
                 secTeam = ''
-                for (j=1; j < (rows.length - 1); j++) {
-                    if (maxTeam != '' && secTeam != ''){
-                        break
+                var tablePoints = []
+                for (t=1; t <= rows.length - 1 ; t++ ) {
+                    rr = rows[t].getElementsByTagName("TD")[4];
+                    tablePoints.push(Number(rr.innerHTML))
+                }
+                simil = []
+                for(t=0; t <= tablePoints.length ; t++) {
+                    p1 = tablePoints[t]
+                    for(x=t+1 ; x<=tablePoints.length; x++){
+                        if(tablePoints[x] == p1){
+                            simil.push(x)
+                        }
                     }
-                    goalsA = 0, goalsB = 0
-                    x = rows[j].getElementsByTagName("TD")[4];
-                    next = rows[j+1].getElementsByTagName("TD")[4];
-                    teamN = rows[j].getElementsByTagName("TD")[0];
-                    teamNB = rows[j+1].getElementsByTagName("TD")[0];
-                    if (Number(x.innerHTML) == Number(next.innerHTML)) {
-                        $(`span[value=${teamN.innerHTML}]`).each( function (){
-                            if ($(this).attr('name') == 'teamA'){
-                                side = 'resA'
-                                contra = 'resB'
-                            } else {
-                                side = 'resB'
-                                contra = 'resA'
-                            }
-                            goal = $(`input[id=${this.id}][name=${side}]`).val()
-                            con = $(`input[id=${this.id}][name=${contra}]`).val()
-                            totalGoalsA = Number(goal) + Number(goalsA)
-                            goalsA = Number(goal) + Number(goalsA) - Number(con)
-                        })
-                        goal = 0
-                        $(`span[value=${teamNB.innerHTML}]`).each( function (){
-                            if ($(this).attr('name') == 'teamA'){
-                                side = 'resA'
-                                contra = 'resB'
-                            } else {
-                                side = 'resB'
-                                contra = 'resA'
-                            }
-                            goal = $(`input[id=${this.id}][name=${side}]`).val()
-                            con = $(`input[id=${this.id}][name=${contra}]`).val()
-                            totalGoalsB = Number(goal) + Number(goalsB)
-                            goalsB = Number(goal) + Number(goalsB) - Number(con)
-                        })
-                        if (goalsA > goalsB){
-                            if(maxTeam != ''){
-                                secTeam = teamN.innerHTML
-                            } else {
-                                maxTeam = teamN.innerHTML
-                                secTeam = teamNB.innerHTML
-                            }
-                        } else if (goalsA < goalsB) {
-                            if(maxTeam != ''){
-                                secTeam = teamNB.innerHTML
-                            } else {
-                                maxTeam = teamNB.innerHTML
-                                secTeam = teamN.innerHTML
-                            }
-                        }
-                        if (goalsA == goalsB){
-                            if (totalGoalsA > totalGoalsB){
-                                if(maxTeam != ''){
-                                    secTeam = teamN.innerHTML
-                                } else {
-                                    maxTeam = teamN.innerHTML
-                                    secTeam = teamNB.innerHTML
-                                }
-                            } else if (totalGoalsA < totalGoalsB) {
-                                if(maxTeam != ''){
-                                    secTeam = teamNB.innerHTML
-                                } else {
-                                    maxTeam = teamNB.innerHTML
-                                    secTeam = teamN.innerHTML
-                                }
-                            }
-                        }
-                    } else if (Number(x.innerHTML) > Number(next.innerHTML) && j == 1) {
-                        maxTeam = teamN.innerHTML
-                        maxPoints = Number(x.innerHTML)
+                    if (simil[0] == 1){
+                        simil.push(0)
+                    } else {
+                        teamN1 = rows[1].getElementsByTagName("TD")[0];
+                        maxTeam = teamN1.innerHTML
+                    }
+                    if (simil[0] == 2){
+                        simil.push(3)
                     }
                 }
-                if (maxTeam == '' || secTeam == '') {
+                tieIdx = removeDuplicates(simil)
+                resDictDif = {}
+                resDictG = {}
+                tieIdx.map(values => {
+                    j = values + 1
+                    teamN = rows[j].getElementsByTagName("TD")[0];
+                    totalGoalsA= 0, diff = 0
+                    $(`span[value=${teamN.innerHTML}]`).each( function () {
+                        if ($(this).attr('name') == 'teamA'){
+                            side = 'resA'
+                            contra = 'resB'
+                        } else {
+                            side = 'resB'
+                            contra = 'resA'
+                        }
+                        goal = $(`input[id=${this.id}][name=${side}]`).val()
+                        con = $(`input[id=${this.id}][name=${contra}]`).val()
+                        totalGoalsA = Number(goal) + Number(totalGoalsA)
+                        diff = Number(goal) + Number(diff) - Number(con)
+                    })
+                    resDictDif[teamN.innerHTML] = diff
+                    resDictG[teamN.innerHTML] = totalGoalsA
+                })
+                if (!allAreEqual(resDictDif)) {
+                    result = Object.entries(resDictDif).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                    delete resDictDif[result]
+                    delete resDictG[result]
+                    if (maxTeam == ''){
+                        maxTeam = result
+                    } else {
+                        secTeam = result
+                    }
+                    if (!allAreEqual(resDictDif)) {
+                        result2 = Object.entries(resDictDif).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    } else if (!allAreEqual(resDictG)) {
+                        result2 = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    }
+                } else if (!allAreEqual(resDictG)) {
+                    result = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                    delete resDictG[result]
+                    if (maxTeam == ''){
+                        maxTeam = result
+                        break
+                    } else {
+                        secTeam = result
+                    }
+                    if (!allAreEqual(resDictG)) {
+                        result2 = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    }
+                }
+                console.log(maxTeam, secTeam)
+                if (maxTeam == '' || secTeam == '') { // Direct game
                     for (j=1; j < (rows.length - 1); j++) {
                         x = rows[j].getElementsByTagName("TD")[4];
                         next = rows[j+1].getElementsByTagName("TD")[4];
@@ -566,6 +584,7 @@
                         })
                     }
                 }
+
             }
             // Add qualificated teams to the 8 group form
             if (groups[i] == 'A') {
