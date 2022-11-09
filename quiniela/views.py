@@ -62,7 +62,7 @@ def gamesView(request, qt_id):
     tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos']
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
-        games = Game.objects.filter(Tournament_fk=qt_id)
+        games = Game.objects.filter(Tournament_fk=qt_id).order_by('gameId')
         userQuiniela = UserQuiniela.objects.get(quiniela_fk=qt_id, djuser_fk=request.user)
     except Exception as e:
         raise Http404("Tournament does not exist: {}".format(e))
@@ -188,8 +188,8 @@ def gamesView(request, qt_id):
                         games.save()
             else:
                 userQuiniela.goaler = results['goaler']
-            userQuiniela.filled = True
-            userQuiniela.save()
+                userQuiniela.filled = True
+                userQuiniela.save()
 
         return redirect('tournament', tournament_id=qt_id)
 
