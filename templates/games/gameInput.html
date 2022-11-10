@@ -194,7 +194,7 @@
         dvTable.append(table);
         
     }
-
+    // Validation for group form, update the table of each group
     $('input').focusout( function (){ // focus each time the user clicksout of the input field
         var res = this.value
         if (res < 0 && !isNaN(res)) {
@@ -516,7 +516,9 @@
                     } else {
                         secTeam = result
                     }
-                    if (!allAreEqual(resDictDif)) {
+                    if(Object.keys(resDictDif).length == 1){
+                        secTeam = Object.keys(resDictDif)[0];
+                    }else if (!allAreEqual(resDictDif)) {
                         result2 = Object.entries(resDictDif).reduce((a, b) => a[1] > b[1] ? a : b)[0]
                         if (secTeam == ''){
                             secTeam = result2
@@ -655,7 +657,7 @@
                 $(`span[name=team${side}][id='q${i+tab}']`).text(teamW)
                 winner = teamW
             }
-            $('<input>').attr({
+            $('<input>').attr({ // Hidden input for winner team
                 type: 'hidden',
                 id: `q${i}`,
                 name: 'winnerTeam',

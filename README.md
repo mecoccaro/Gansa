@@ -21,6 +21,8 @@ DB_USER
 DB_PASS
 DB_HOST
 DB_PORT
+DEBUG 1/0
+STAGE dev/prod
 ```
 
 ## Usage
@@ -29,6 +31,10 @@ Run all migrations for the database.
 
 ```bash
 python manage.py migrate
+```
+Create a super user
+```bash
+python manage.py createsuperuser
 ```
 
 Run the local django server
