@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
@@ -195,7 +195,7 @@ def gamesView(request, qt_id):
                 userQuiniela.filled = True
                 userQuiniela.save()
 
-        return redirect('tournament', tournament_id=qt_id)
+        return HttpResponseRedirect('/quiniela/tournament/{}'.format(tournament.id))
 
     context = {
         'tournament': tournament, 'games': games, 'groupsIds': groupsIds,
