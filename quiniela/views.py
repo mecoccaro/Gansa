@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
@@ -142,7 +142,7 @@ def gamesView(request, qt_id):
                     results[phase] = res['value']
             count += 1
         qualyTypes = []
-        logger.warning('Quiniela submitted')
+        logger.info('Quiniela submitted')
         print(qt_id)
         print(json.dumps(results))
         for i in range(13):
@@ -195,7 +195,7 @@ def gamesView(request, qt_id):
                 userQuiniela.filled = True
                 userQuiniela.save()
 
-        return redirect('tournament', tournament_id=qt_id)
+        return HttpResponseRedirect('/quiniela/tournament/{}'.format(tournament.id))
 
     context = {
         'tournament': tournament, 'games': games, 'groupsIds': groupsIds,

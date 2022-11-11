@@ -86,6 +86,11 @@
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     var goaler
+
+    $(document).ajaxStop(function(){
+        window.location.reload();
+    });
+    
     $("#modalSubmit").click(function (e) { //Submit game forms
         e.preventDefault();
         var results = []
@@ -104,10 +109,10 @@
             data: JSON.stringify(results),
             headers: {'X-CSRFToken': csrftoken},
             dataType: 'json',
+            success: function( data ) {
+                $('#myModal').modal('hide')
+            },
         });
-        
-        $('#myModal').modal('hide');
-        window.location.replace('/quiniela/tournament/{{tournament.id}}');
     })
     
     function sortTable(tableName) {
