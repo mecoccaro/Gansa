@@ -142,7 +142,7 @@ def gamesView(request, qt_id):
                     results[phase] = res['value']
             count += 1
         qualyTypes = []
-        logger.warning('Quiniela submitted')
+        logger.info('Quiniela submitted')
         print(qt_id)
         print(json.dumps(results))
         for i in range(13):
