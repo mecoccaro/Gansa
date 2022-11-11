@@ -1,11 +1,12 @@
-from django.http import HttpResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from .formGames import GameFormGroups, GamesFormSet
 from .models import *
 import json
-from django.core import serializers
+import logging
+logger = logging.getLogger(__name__)
 
 groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
@@ -141,6 +142,9 @@ def gamesView(request, qt_id):
                     results[phase] = res['value']
             count += 1
         qualyTypes = []
+        logger.warning('Quiniela submitted')
+        print(qt_id)
+        print(json.dumps(results))
         for i in range(13):
             qualyTypes.append('q'+str(i))
         qualyTypes.append('semi1')

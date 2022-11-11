@@ -748,7 +748,7 @@
             }
             if(teamA.length > 0){
                 $('#finale').append(`
-                <option value=teamW>${winner}</option>
+                <option value=${winner}>${winner}</option>
                 `)
             }
             
@@ -773,7 +773,7 @@
         var teamB = $(`span[name=teamB][id=final]`).text()
         var teamW
         if (resA == resB){
-            teamW = $(`[id=final] option:selected`).text()
+            teamW = $(`[id=finale] option:selected`).text()
         }
         if (resA > resB) {
             winner = teamA
