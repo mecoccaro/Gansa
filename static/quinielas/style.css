@@ -11,7 +11,7 @@ input[type=number] {
 }
 
 .bg-tournament-image {
-    background: url("../superC.jpg");
+   
     background-position: center;
     background-size: cover;
 }
