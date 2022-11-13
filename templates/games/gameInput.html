@@ -101,6 +101,7 @@
         results.push($("#semiForm").serializeArray())
         results.push($("#finalForm").serializeArray())
         results.push([{'name': 'goaler', 'value': goaler}])
+        console.log(results)
 
         $.ajax({
             url: '/quiniela/games/{{tournament.id}}',
