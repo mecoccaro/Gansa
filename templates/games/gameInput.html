@@ -775,9 +775,9 @@
     $('#semi').click( function (){
         $(`span[name=teamA][id='final']`).text('')
         $(`span[name=teamB][id='final']`).text('')
-        $(`#finale option[value='teamW']`).each( function(){
-            $(this).remove();
-        })
+        // Reset any entry in the finale array.
+        $(`#finale`).empty();
+        
         hide(`q${t}`)
         for (i=1; i <= 2 ; i++) {
             resA = $(`input[name=resA][id=semi${i}]`).val()
@@ -895,15 +895,27 @@
         console.log(teamA, teamB)
         if (resA > resB) {
             showFinal('finale')
-            $(`#finale option:contains(${teamB})`).each( function(){
-                $(this).remove();
-            })
+            // if teamA won only keep teamA here.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamA}>${teamA}</option>
+                `)
         } else if (resA < resB) {
             showFinal('finale')
-            $(`#finale option:contains(${teamA})`).each( function(){
-                $(this).remove();
-            })
+            // if teamB won only keep teamB here.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamB}>${teamB}</option>
+                `)
         } else {
+            // If it is a tie keep both teams.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamA}>${teamA}</option>
+                `)
+            $('#finale').append(`
+                <option value=${teamB}>${teamB}</option>
+            `)
             showFinal('finale')
         }
     })
