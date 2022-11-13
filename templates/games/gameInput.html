@@ -117,7 +117,7 @@
     })
     
     function sortTable(tableName) {
-        var table, rows, switching, i, team1, team2, shouldSwitch, div;
+        var table, rows, switching, i, pts1, pts2, gf1, gf2, diff1, diff2, shouldSwitch, div;
         table =  document.getElementById(tableName);
         switching = true;
         /* Make a loop that will continue until
@@ -131,26 +131,37 @@
             for (i = 1; i < (rows.length - 1); i++) {
             // Start by saying there should be no switching:
                 shouldSwitch = false;
-                /* Get the two elements you want to compare,
-                one from current row and one from the next: */
-                team1 = rows[i].getElementsByTagName("TD")[4];
-                diff1 = rows[i].getElementsByTagName("TD")[5];
-                team2 = rows[i + 1].getElementsByTagName("TD")[4];
-                diff2 = rows[i + 1].getElementsByTagName("TD")[5];
+                /* Get the elements you want to compare,
+                one from current row and one from the next:
+                Points, Goal difference, Goal in favor
+                */
+                pts1 = rows[i].getElementsByTagName("TD")[4];
+                gf1 = rows[i].getElementsByTagName("TD")[5];
+                diff1 = rows[i].getElementsByTagName("TD")[7];
+                pts2 = rows[i + 1].getElementsByTagName("TD")[4];
+                gf2 = rows[i + 1].getElementsByTagName("TD")[5];
+                diff2 = rows[i + 1].getElementsByTagName("TD")[7];
                 // Check if the two rows should switch place:
-                if (Number(team1.innerHTML) < Number(team2.innerHTML)) {
+                // First check is based on points.
+                if (Number(pts1.innerHTML) < Number(pts2.innerHTML)) {
                     // If so, mark as a switch and break the loop:
                     shouldSwitch = true;
                     break;
-                // if the points are the same use the goal difference.
-                } else if(Number(team1.innerHTML) == Number(team2.innerHTML)) {
+                } else if(Number(pts1.innerHTML) == Number(pts2.innerHTML)) {
+                    // if the points are the same use the goal difference.
                     if (Number(diff1.innerHTML) < Number(diff2.innerHTML)) {
+                        // If so, mark as a switch and break the loop:
                         shouldSwitch = true;
                         break;
+                    // if goal difference is the same use most goal scored.
                     } else if (Number(diff1.innerHTML) == Number(diff2.innerHTML)) {
-                        // TODO: in this condition we need to check the next criteria.
-                        // The 2 teams has the same points and goal diff. What next?
-                        // Goals scored? Or directly fair play.
+                        if(Number(gf1.innerHTML) < Number(gf2.innerHTML)) {
+                            // If so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        } else {
+                            // TODO last check, direct matches.
+                        }
                     }
                 }
             }
@@ -177,20 +188,14 @@
         table[0].border = "1";
 
         // Get the count of columns.
-        // TODO add a extra column for goal diff. This should be part of
-        // tableHeader instead of just +1 this is a hack
-        var columnCount = tableHeaders.length + 1;
+        var columnCount = tableHeaders.length;
 
         //Add the header row.
         var row = $(table[0].insertRow(-1));
         for (var j = 0; j < columnCount; j++) {
             var headerCell = $("<th />");
             headerCell.html(tableHeaders[j]);
-            if( j < (columnCount - 1)) {
-                row.append(headerCell);
-            } else {
-                row.append($("<th>Diff</th>"));        
-            }
+            row.append(headerCell);
         }
 
         for (var x = 0; x < games[i].length; x++) {
@@ -209,8 +214,13 @@
                     cell.innerHTML = 0
                 } else if ( j == 4) {
                     cell.innerHTML = 0
-                } else if (j == 5) {
-                    // Goal diff
+                } else if (j == 5) { // GF
+                    cell.innerHTML = 0
+                }
+                else if (j == 6) { // GC
+                    cell.innerHTML = 0
+                }
+                else if (j == 7) { // GD
                     cell.innerHTML = 0
                 }
             }
@@ -256,6 +266,8 @@
                 $this.eq(3).html(0);
                 $this.eq(4).html(0);
                 $this.eq(5).html(0);
+                $this.eq(6).html(0);
+                $this.eq(7).html(0);
                 
                 $this = $('#' + teamB).find("td");
                 $this.eq(1).html(0);
@@ -263,6 +275,8 @@
                 $this.eq(3).html(0);
                 $this.eq(4).html(0);
                 $this.eq(5).html(0);
+                $this.eq(6).html(0);
+                $this.eq(7).html(0);
             }
             for(j=1; j<=6; j++){
                 tt = group + j
@@ -295,10 +309,15 @@
                     res = pointA
                     $this.eq(4).html(res)
 
-                    diffA = parseInt($this.eq(5).text())
-                    diffA += resA - resB
-                    res = diffA
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
                     $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)                    
+                    diffA = parseInt($this.eq(7).text())
+                    diffA += parseInt(resA) - parseInt(resB)
+                    res = diffA
+                    $this.eq(7).html(res)
                     
                     $this = $('#' + teamB).find("td");
                     if($this.eq(2).text() == 0 ){
@@ -310,10 +329,15 @@
                     res = loseB
                     $this.eq(2).html(res)
 
-                    diffB = parseInt($this.eq(5).text())
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)                    
+                    diffB = parseInt($this.eq(7).text())
                     diffB += resB - resA
                     res = diffB
-                    $this.eq(5).html(res);
+                    $this.eq(7).html(res);
                 }  else if (resA < resB) { //TeamB winner case
                     $this = $('#' + teamB).find("td");
                     if($this.eq(1).text() == 0 ){
@@ -333,10 +357,15 @@
                     res = pointB
                     $this.eq(4).html(res)
 
-                    diffB = parseInt($this.eq(5).text())
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)
+                    diffB = parseInt($this.eq(7).text())
                     diffB += resB - resA
                     res = diffB
-                    $this.eq(5).html(res)
+                    $this.eq(7).html(res)
 
                     $this = $('#' + teamA).find("td");
                     if($this.eq(2).text() == 0 ){
@@ -348,10 +377,15 @@
                     res = lose
                     $this.eq(2).html(res)
 
-                    diffA = parseInt($this.eq(5).text())
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)
+                    diffA = parseInt($this.eq(7).text())
                     diffA += resA - resB
                     res = diffA
-                    $this.eq(5).html(res);
+                    $this.eq(7).html(res);
                 } else {
                     $this = $('#' + teamA).find("td");
                     if($this.eq(3).text() == 0 ){
@@ -372,10 +406,15 @@
                     res = pointA
                     $this.eq(4).html(res)
 
-                    diffA = parseInt($this.eq(5).text())
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)
+                    diffA = parseInt($this.eq(7).text())
                     diffA += resA - resB
                     res = diffA
-                    $this.eq(5).html(res)
+                    $this.eq(7).html(res)
 
                     $this = $('#' + teamB).find("td");
                     if($this.eq(3).text() == 0 ){
@@ -395,11 +434,16 @@
                     pointB += 1
                     res = pointB
                     $this.eq(4).html(res)
-
-                    diffB = parseInt($this.eq(5).text())
+                    
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)
+                    diffB = parseInt($this.eq(7).text())
                     diffB += resB - resA
                     res = diffB
-                    $this.eq(5).html(res);
+                    $this.eq(7).html(res);
                 }
             }
         }

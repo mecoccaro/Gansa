@@ -76,7 +76,7 @@ def tournamentView(request, tournament_id):
 
 
 def gamesView(request, qt_id):
-    tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos']
+    tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos', 'GF', 'GC', 'GD']
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
         games = Game.objects.filter(Tournament_fk=qt_id).order_by('gameId')
