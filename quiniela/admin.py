@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Teams, Game, QuinielaTournament, Phases, UserQuiniela
+
+from .models import Game, Phases, QuinielaTournament, Teams, UserQuiniela
 
 
 class TeamsAdmin(admin.ModelAdmin):

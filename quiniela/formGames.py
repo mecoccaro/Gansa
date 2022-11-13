@@ -1,7 +1,9 @@
 from django import forms
-from .models import QuinielaTournament, UserQuiniela, Teams, GameQuinielaGroups, GameQuinielaQualify
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import formset_factory
+
+from .models import (GameQuinielaGroups, GameQuinielaQualify,
+                     QuinielaTournament, Teams, UserQuiniela)
 
 
 class GameFormGroups(forms.Form):

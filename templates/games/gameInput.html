@@ -116,7 +116,7 @@
     })
     
     function sortTable(tableName) {
-        var table, rows, switching, i, x, y, shouldSwitch, div;
+        var table, rows, switching, i, team1, team2, shouldSwitch, div;
         table =  document.getElementById(tableName);
         switching = true;
         /* Make a loop that will continue until
@@ -132,13 +132,25 @@
                 shouldSwitch = false;
                 /* Get the two elements you want to compare,
                 one from current row and one from the next: */
-                x = rows[i].getElementsByTagName("TD")[4];
-                y = rows[i + 1].getElementsByTagName("TD")[4];
+                team1 = rows[i].getElementsByTagName("TD")[4];
+                diff1 = rows[i].getElementsByTagName("TD")[5];
+                team2 = rows[i + 1].getElementsByTagName("TD")[4];
+                diff2 = rows[i + 1].getElementsByTagName("TD")[5];
                 // Check if the two rows should switch place:
-                if (Number(x.innerHTML) < Number(y.innerHTML)) {
+                if (Number(team1.innerHTML) < Number(team2.innerHTML)) {
                     // If so, mark as a switch and break the loop:
                     shouldSwitch = true;
                     break;
+                // if the points are the same use the goal difference.
+                } else if(Number(team1.innerHTML) == Number(team2.innerHTML)) {
+                    if (Number(diff1.innerHTML) < Number(diff2.innerHTML)) {
+                        shouldSwitch = true;
+                        break;
+                    } else if (Number(diff1.innerHTML) == Number(diff2.innerHTML)) {
+                        // TODO: in this condition we need to check the next criteria.
+                        // The 2 teams has the same points and goal diff. What next?
+                        // Goals scored? Or directly fair play.
+                    }
                 }
             }
             if (shouldSwitch) {
@@ -163,15 +175,21 @@
         var table = $(`<table class="table table-bordered border-primary" id=${tabId}/>`);
         table[0].border = "1";
 
-        //Get the count of columns.
-        var columnCount = tableHeaders.length;
+        // Get the count of columns.
+        // TODO add a extra column for goal diff. This should be part of
+        // tableHeader instead of just +1 this is a hack
+        var columnCount = tableHeaders.length + 1;
 
         //Add the header row.
         var row = $(table[0].insertRow(-1));
         for (var j = 0; j < columnCount; j++) {
             var headerCell = $("<th />");
             headerCell.html(tableHeaders[j]);
-            row.append(headerCell);
+            if( j < (columnCount - 1)) {
+                row.append(headerCell);
+            } else {
+                row.append($("<th>Diff</th>"));        
+            }
         }
 
         for (var x = 0; x < games[i].length; x++) {
@@ -190,9 +208,11 @@
                     cell.innerHTML = 0
                 } else if ( j == 4) {
                     cell.innerHTML = 0
+                } else if (j == 5) {
+                    // Goal diff
+                    cell.innerHTML = 0
                 }
             }
-            
         }
         var dvTable = $(tabName);
         dvTable.html("");
@@ -225,6 +245,7 @@
             var pointA = 0
             var win = 0, winB = 0, lose=0, loseB = 0, tie = 0, tieB = 0, tt
             var pointB = 0
+            var diffA = 0, diffB = 0;
             for (i=1; i<=6; i++){
                 teamA = $(`span[name=teamA][id=${group+i}]`).text()
                 teamB = $(`span[name=teamB][id=${group+i}]`).text()
@@ -233,12 +254,14 @@
                 $this.eq(2).html(0);
                 $this.eq(3).html(0);
                 $this.eq(4).html(0);
+                $this.eq(5).html(0);
                 
                 $this = $('#' + teamB).find("td");
                 $this.eq(1).html(0);
                 $this.eq(2).html(0);
                 $this.eq(3).html(0);
                 $this.eq(4).html(0);
+                $this.eq(5).html(0);
             }
             for(j=1; j<=6; j++){
                 tt = group + j
@@ -251,6 +274,7 @@
                 }
                 teamA = $(`span[name=teamA][id=${tt}]`).text()
                 teamB = $(`span[name=teamB][id=${tt}]`).text()
+
                 if (resA > resB) {
                     $this = $('#' + teamA).find("td"); // win case for teamA
                     if($this.eq(1).text() == 0 ){
@@ -270,6 +294,11 @@
                     res = pointA
                     $this.eq(4).html(res)
 
+                    diffA = parseInt($this.eq(5).text())
+                    diffA += resA - resB
+                    res = diffA
+                    $this.eq(5).html(res)
+                    
                     $this = $('#' + teamB).find("td");
                     if($this.eq(2).text() == 0 ){
                         loseB = 0
@@ -278,7 +307,12 @@
                     }
                     loseB += 1
                     res = loseB
-                    $this.eq(2).html(res);
+                    $this.eq(2).html(res)
+
+                    diffB = parseInt($this.eq(5).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(5).html(res);
                 }  else if (resA < resB) { //TeamB winner case
                     $this = $('#' + teamB).find("td");
                     if($this.eq(1).text() == 0 ){
@@ -298,6 +332,11 @@
                     res = pointB
                     $this.eq(4).html(res)
 
+                    diffB = parseInt($this.eq(5).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(5).html(res)
+
                     $this = $('#' + teamA).find("td");
                     if($this.eq(2).text() == 0 ){
                         lose = 0
@@ -306,7 +345,12 @@
                     }
                     lose += 1
                     res = lose
-                    $this.eq(2).html(res);
+                    $this.eq(2).html(res)
+
+                    diffA = parseInt($this.eq(5).text())
+                    diffA += resA - resB
+                    res = diffA
+                    $this.eq(5).html(res);
                 } else {
                     $this = $('#' + teamA).find("td");
                     if($this.eq(3).text() == 0 ){
@@ -327,6 +371,11 @@
                     res = pointA
                     $this.eq(4).html(res)
 
+                    diffA = parseInt($this.eq(5).text())
+                    diffA += resA - resB
+                    res = diffA
+                    $this.eq(5).html(res)
+
                     $this = $('#' + teamB).find("td");
                     if($this.eq(3).text() == 0 ){
                         tieB = 0
@@ -345,6 +394,11 @@
                     pointB += 1
                     res = pointB
                     $this.eq(4).html(res)
+
+                    diffB = parseInt($this.eq(5).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(5).html(res);
                 }
             }
         }

@@ -1,12 +1,14 @@
-from django.http import HttpResponse, Http404, HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import RegisterForm
-from .formGames import GameFormGroups, GamesFormSet
-from .models import *
 import json
 import logging
+
+from django.contrib import messages
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.template import RequestContext
+
+from .formGames import GameFormGroups, GamesFormSet
+from .forms import RegisterForm
+from .models import *
 
 logger = logging.getLogger(__name__)
 
