@@ -86,6 +86,7 @@
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     var goaler
+    var direct = {}
 
     $(document).ajaxStop(function(){
         window.location.reload();
@@ -111,7 +112,7 @@
             headers: {'X-CSRFToken': csrftoken},
             dataType: 'json',
             success: function( data ) {
-                $('#myModal').modal('hide')
+                window.location.replace('/quiniela/tournament/{{tournament.id}}');
             },
         });
     })
@@ -120,9 +121,11 @@
         var table, rows, switching, i, pts1, pts2, gf1, gf2, diff1, diff2, shouldSwitch, div;
         table =  document.getElementById(tableName);
         switching = true;
+        count = 0
         /* Make a loop that will continue until
         no switching has been done: */
         while (switching) {
+            count ++;
             // Start by saying: no switching is done:
             switching = false;
             rows = table.rows;
@@ -141,6 +144,9 @@
                 pts2 = rows[i + 1].getElementsByTagName("TD")[4];
                 gf2 = rows[i + 1].getElementsByTagName("TD")[5];
                 diff2 = rows[i + 1].getElementsByTagName("TD")[7];
+                team1 = rows[i].getElementsByTagName("TD")[0];
+                team2 = rows[i+1].getElementsByTagName("TD")[0];
+                defeatedList = direct[team2.innerHTML]
                 // Check if the two rows should switch place:
                 // First check is based on points.
                 if (Number(pts1.innerHTML) < Number(pts2.innerHTML)) {
@@ -160,9 +166,19 @@
                             shouldSwitch = true;
                             break;
                         } else {
-                            // TODO last check, direct matches.
+                            if (defeatedList.includes(team1.innerHTML)) {
+                                shouldSwitch = true;
+                                break;
+                            } else {
+                                shouldSwitch = false;
+                                break;
+                            }
                         }
                     }
+                }
+                if (count > 6) {
+                    shouldSwitch = false;
+                    break;
                 }
             }
             if (shouldSwitch) {
@@ -199,6 +215,8 @@
         }
 
         for (var x = 0; x < games[i].length; x++) {
+            //Fill direct games dictionary
+            direct[games[i][x]] = []
             //Add the data rows.
             row = table[0].insertRow(-1)
             for (var j = 0; j < columnCount; j++) {
@@ -338,6 +356,9 @@
                     diffB += resB - resA
                     res = diffB
                     $this.eq(7).html(res);
+
+                    // fill direct dict with defeated team
+                    direct[teamA].push(teamB)
                 }  else if (resA < resB) { //TeamB winner case
                     $this = $('#' + teamB).find("td");
                     if($this.eq(1).text() == 0 ){
@@ -386,6 +407,9 @@
                     diffA += resA - resB
                     res = diffA
                     $this.eq(7).html(res);
+
+                    // fill direct dict with defeated team
+                    direct[teamB].push(teamA)
                 } else {
                     $this = $('#' + teamA).find("td");
                     if($this.eq(3).text() == 0 ){
@@ -542,27 +566,30 @@
                 stores = points[j]
             }
             points = []
+            cases = 0 // ignore tie, use table results
+            for (j=1; j < (rows.length - 1); j++) {
+                x = rows[j].getElementsByTagName("TD")[4];
+                teamN = rows[j].getElementsByTagName("TD")[0];
+                if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    maxPoints = Number(x.innerHTML)
+                    maxTeam = teamN.innerHTML
+                }
+            }
+            prev = 0
+            for (k=1; k < (rows.length - 1); k++) {
+                x = rows[k].getElementsByTagName("TD")[4];
+                teamN = rows[k].getElementsByTagName("TD")[0];
+                if (teamN.innerHTML == maxTeam) { continue }
+                if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    secTeam = teamN.innerHTML
+                }
+            }
             if (cases == 0) { // If there are no repeated on points, validate the first and secod to qualify
-                for (j=1; j < (rows.length - 1); j++) {
-                    x = rows[j].getElementsByTagName("TD")[4];
-                    teamN = rows[j].getElementsByTagName("TD")[0];
-                    if (Number(x.innerHTML) > prev) {
-                        prev = Number(x.innerHTML)
-                        maxPoints = Number(x.innerHTML)
-                        maxTeam = teamN.innerHTML
-                    }
-                }
-                prev = 0
-                for (k=1; k < (rows.length - 1); k++) {
-                    x = rows[k].getElementsByTagName("TD")[4];
-                    teamN = rows[k].getElementsByTagName("TD")[0];
-                    if (teamN.innerHTML == maxTeam) { continue }
-                    if (Number(x.innerHTML) > prev) {
-                        prev = Number(x.innerHTML)
-                        secTeam = teamN.innerHTML
-                    }
-                }
+                
             } else { // tie case
+                break; // ignore tie case, use table
                 maxTeam = ''
                 secTeam = ''
                 var tablePoints = []
@@ -649,7 +676,6 @@
                         }
                     }
                 }
-                console.log(maxTeam, secTeam)
                 if (maxTeam == '' || secTeam == '') { // Direct game
                     for (j=1; j < (rows.length - 1); j++) {
                         x = rows[j].getElementsByTagName("TD")[4];
@@ -931,12 +957,10 @@
         if (this.id != 'final') {
             return;
         }
-        console.log('out')
         resA = $(`input[name=resA][id=final]`).val()
         resB = $(`input[name=resB][id=final]`).val()
         teamA = $(`span[name=teamA][id=${this.id}]`).text()
         teamB = $(`span[name=teamB][id=${this.id}]`).text()
-        console.log(teamA, teamB)
         if (resA > resB) {
             showFinal('finale')
             // if teamA won only keep teamA here.
