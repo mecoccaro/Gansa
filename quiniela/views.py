@@ -5,11 +5,12 @@ from django.contrib import messages
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.contrib.auth.models import Group, User
+from django.urls import reverse
 
 from .formGames import GameFormGroups, GamesFormSet
 from .forms import RegisterForm
 from .models import *
-from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +42,18 @@ def register(request):
         form = RegisterForm(request.POST)
 
     if form.is_valid():
-        form.save()
+        usrQ = UserQuiniela()
+        quiniela = QuinielaTournament.objects.get(id='90a84781-1f80-4b1b-b330-c63ed2f8ec41') # main tournament
+        userCreated = form.save()
+        us = User.objects.get(id=userCreated.id)
         user = form.cleaned_data.get('username')
         messages.success(request, 'Account was created for ' + user)
+        group = Group.objects.get(name='Family')
+        userCreated.groups.add(group)
+        usrQ.djuser_fk = us
+        usrQ.quiniela_fk = quiniela
+        usrQ.points = 0
+        usrQ.save()
         return redirect('/accounts/login')
     else:
         print('Form is not valid')
