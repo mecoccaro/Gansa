@@ -9,6 +9,7 @@ from django.template import RequestContext
 from .formGames import GameFormGroups, GamesFormSet
 from .forms import RegisterForm
 from .models import *
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -211,11 +212,11 @@ def gamesView(request, qt_id):
                 userQuiniela.filled = True
                 userQuiniela.save()
 
-        return HttpResponseRedirect('/quiniela/tournament/{}'.format(tournament.id))
+        return HttpResponseRedirect(reverse('preview', kwargs={'uq_id': userQuiniela.id}))
 
     context = {
         'tournament': tournament, 'games': games, 'groupsIds': groupsIds,
-        'th': tableHeaders, 'teamsGroups': teamsGroups
+        'th': tableHeaders, 'teamsGroups': teamsGroups, 'user_quiniela': userQuiniela.id
         }
     return render(request, 'games/gameInput.html', context)
 

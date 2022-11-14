@@ -89,7 +89,7 @@
     var direct = new Map();
 
     $(document).ajaxStop(function(){
-        window.location.reload();
+        window.location.replace('/quiniela/gamesPreview/{{user_quiniela}}')
     });
     
     $("#modalSubmit").click(function (e) { //Submit game forms
@@ -111,9 +111,6 @@
             data: JSON.stringify(results),
             headers: {'X-CSRFToken': csrftoken},
             dataType: 'json',
-            success: function( data ) {
-                window.location.replace('/quiniela/tournament/{{tournament.id}}');
-            },
         });
     })
     
