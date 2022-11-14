@@ -86,7 +86,7 @@
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     var goaler
-    var direct = {}
+    var direct = new Map();
 
     $(document).ajaxStop(function(){
         window.location.reload();
@@ -121,11 +121,9 @@
         var table, rows, switching, i, pts1, pts2, gf1, gf2, diff1, diff2, shouldSwitch, div;
         table =  document.getElementById(tableName);
         switching = true;
-        count = 0
         /* Make a loop that will continue until
         no switching has been done: */
         while (switching) {
-            count ++;
             // Start by saying: no switching is done:
             switching = false;
             rows = table.rows;
@@ -165,22 +163,15 @@
                             // If so, mark as a switch and break the loop:
                             shouldSwitch = true;
                             break;
-                        } else {
+                        } else if (Number(gf1.innerHTML) == Number(gf2.innerHTML)){
                             if (defeatedList.includes(team1.innerHTML)) {
                                 shouldSwitch = true;
-                                break;
-                            } else {
-                                shouldSwitch = false;
                                 break;
                             }
                         }
                     }
                 }
-                if (count > 6) {
-                    shouldSwitch = false;
-                    break;
-                }
-            }
+            }   
             if (shouldSwitch) {
                 /* If a switch has been marked, make the switch
                 and mark that a switch has been done: */
@@ -261,6 +252,7 @@
         if (group == 'q' || group == 's'|| group =='f') {
             return false
         }
+        direct.clear()
         var tableId = '#' + this.id.slice(0,1) + 'Table'
         var teamA = $(`span[name=teamA][id=${this.id}]`).text()
         var teamB = $(`span[name=teamB][id=${this.id}]`).text()
@@ -358,7 +350,9 @@
                     $this.eq(7).html(res);
 
                     // fill direct dict with defeated team
-                    direct[teamA].push(teamB)
+                    if(!direct[teamA].includes(teamB)) {
+                        direct[teamA].push(teamB)
+                    }
                 }  else if (resA < resB) { //TeamB winner case
                     $this = $('#' + teamB).find("td");
                     if($this.eq(1).text() == 0 ){
@@ -409,7 +403,9 @@
                     $this.eq(7).html(res);
 
                     // fill direct dict with defeated team
-                    direct[teamB].push(teamA)
+                    if(!(direct[teamB].includes(teamA))) {
+                        direct[teamB].push(teamA)
+                    }
                 } else {
                     $this = $('#' + teamA).find("td");
                     if($this.eq(3).text() == 0 ){
