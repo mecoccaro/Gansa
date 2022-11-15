@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+  {% include "user/home.html" %}
+{% else %}
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-xl-10 col-lg-12 col-md-9">
+          <div class="card o-hidden border-0 shadow-lg my-5">
+              <div class="card-body p-0">
+                  <!-- Nested Row within Card Body -->
+                  <div class="row">
+                      <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                        <img src="https://ih1.redbubble.net/image.909031920.0495/flat,750x,075,f-pad,750x1000,f8f8f8.jpg" style="width: 100%;"/>
+                      </div>
+                      <div class="col-lg-6" style="margin-top: 30%; margin-bottom: 30%;">
+                          <div class="p-5">
+                              <div class="w3-display-topleft w3-container w3-xlarge">
+                                <p><a class="btn btn-primary" href="/accounts/login/">Login</a></p>
+                                <p><a class="btn btn-primary" href="/quiniela/signup/">Register</a></p>
+                              </div>
+                              <div class="w3-display-middle w3-jumbo">
+                                <p>GANSA</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+
+  </div>
+
+</div>
+{% load static %}
+{% endif %}
+{% endblock %}

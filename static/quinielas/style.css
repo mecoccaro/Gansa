@@ -1,0 +1,21 @@
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.bg-tournament-image {
+   
+    background-position: center;
+    background-size: cover;
+}
+
+.teams-form {
+    width: 30%;
+}

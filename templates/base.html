@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{% block title %} Gansa {% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">et">
+    <style>
+    body,h1,h5 {font-family: "Raleway", sans-serif}
+    body, html {height: 100%}
+    .bgimg {
+      min-height: 100%;
+      background-position: center;
+      background-size: cover;
+    }
+    .qatar-2022{
+      background: rgb(86,4,44);
+      background: linear-gradient(90deg, rgba(86,4,44,1) 19%, rgba(254,195,16,1) 50%, rgba(86,4,44,1) 82%);
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    .bg-register-image {
+      background: url("https://www.gannett-cdn.com/-mm-/88f8d3087972fce9c26d0175bf9e62965852db48/c=0-134-2100-1320&r=800/local/-/media/2018/08/02/INGroup/Muncie/636688190095171007-GoosePoo6001.JPG");
+      background-position: center;
+      background-size: cover;
+    }
+    .bg-tournament-image {
+      background: url("https://i.pinimg.com/550x/44/7c/f9/447cf996d094df0fdbbbcaa2a934358f.jpg");
+      background-position: center;
+      background-size: cover;
+    }
+    </style>
+
+</head>
+
+<body class="qatar-2022">
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+    {% load static %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    {% block javascript %}
+    {% endblock javascript %}
+</body>
+
+</html>

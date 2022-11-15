@@ -1,0 +1,986 @@
+{% extends 'base.html' %}
+{% block title %} Gansa {% endblock %}
+<body>
+{% load static %}
+{% block content %}
+<div class="modal" tabindex="-1" id="myModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirmar</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>Revisa bien tus resultados.</p>
+            <p>Una vez guardes tus resultados <span>NO</span> podrás volver a editar.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="submit" id='modalSubmit' class="btn btn-primary">Enviar y guardar</button>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="card-columns">
+            <div class="card shadow-lg my-5">
+                <div class="card-body">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'tournament' tournament.id %}">Tabla</a></li>
+                                <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                            </ol>
+                        </nav>
+                        <div class="alert alert-dark" role="alert">
+                            {{ tournament.name }}
+                        </div>
+                        {% include 'games/form.html' with games=games %}
+                    </div>
+                </div>
+            </div>
+            <div class="card p-3 my-5" >
+                <div class="col-lg-6">
+                    <div id="ATable">
+                    </div>
+                    <div id="BTable">
+                    </div>
+                    <div id="CTable">
+                    </div>
+                    <div id="DTable">
+                    </div>
+                    <div id="ETable">
+                    </div>
+                    <div id="FTable">
+                    </div>
+                    <div id="GTable">
+                    </div>
+                    <div id="HTable">
+                    </div>
+                </div>
+            </div>
+            <div class="card p-3 my-5" >
+                <div class="col-lg-12">
+                    {% include 'games/8form.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/4form.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/semiform.html' %}
+                </div>
+                <div class="col-lg-12">
+                    {% include 'games/finalForm.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+{% block javascript %}
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var goaler
+    var direct = new Map();
+
+    $(document).ajaxStop(function(){
+        window.location.replace('/quiniela/gamesPreview/{{user_quiniela}}')
+    });
+    
+    $("#modalSubmit").click(function (e) { //Submit game forms
+        e.preventDefault();
+        var results = []
+        var formData = JSON.stringify($("#gamesForm").serializeArray()); // group form
+        results.push($("#gamesForm").serializeArray())
+        results.push($("#8Form").serializeArray())
+        results.push($("#4Form").serializeArray())
+        results.push($("#semiForm").serializeArray())
+        results.push($("#finalForm").serializeArray())
+        results.push([{'name': 'goaler', 'value': goaler}])
+        console.log(results)
+
+        $.ajax({
+            url: '/quiniela/games/{{tournament.id}}',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(results),
+            headers: {'X-CSRFToken': csrftoken},
+            dataType: 'json',
+        });
+    })
+    
+    function sortTable(tableName) {
+        var table, rows, switching, i, pts1, pts2, gf1, gf2, diff1, diff2, shouldSwitch, div;
+        table =  document.getElementById(tableName);
+        switching = true;
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the elements you want to compare,
+                one from current row and one from the next:
+                Points, Goal difference, Goal in favor
+                */
+                pts1 = rows[i].getElementsByTagName("TD")[4];
+                gf1 = rows[i].getElementsByTagName("TD")[5];
+                diff1 = rows[i].getElementsByTagName("TD")[7];
+                pts2 = rows[i + 1].getElementsByTagName("TD")[4];
+                gf2 = rows[i + 1].getElementsByTagName("TD")[5];
+                diff2 = rows[i + 1].getElementsByTagName("TD")[7];
+                team1 = rows[i].getElementsByTagName("TD")[0];
+                team2 = rows[i+1].getElementsByTagName("TD")[0];
+                defeatedList = direct[team2.innerHTML]
+                // Check if the two rows should switch place:
+                // First check is based on points.
+                if (Number(pts1.innerHTML) < Number(pts2.innerHTML)) {
+                    // If so, mark as a switch and break the loop:
+                    shouldSwitch = true;
+                    break;
+                } else if(Number(pts1.innerHTML) == Number(pts2.innerHTML)) {
+                    // if the points are the same use the goal difference.
+                    if (Number(diff1.innerHTML) < Number(diff2.innerHTML)) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    // if goal difference is the same use most goal scored.
+                    } else if (Number(diff1.innerHTML) == Number(diff2.innerHTML)) {
+                        if(Number(gf1.innerHTML) < Number(gf2.innerHTML)) {
+                            // If so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        } else if (Number(gf1.innerHTML) == Number(gf2.innerHTML)){
+                            if (defeatedList.includes(team1.innerHTML)) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }   
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+
+    // Create tables for each group
+    var groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    var games = {{teamsGroups|safe}}
+    var tableHeaders = {{th|safe}}
+    var tester
+
+    for (var i = 0; i < games.length; i++){
+        //Create a HTML Table element.
+        var tabName = '#' + groups[i] + 'Table'
+        var tabId = groups[i] + 'InTable'
+        var table = $(`<table class="table table-bordered border-primary" id=${tabId}/>`);
+        table[0].border = "1";
+
+        // Get the count of columns.
+        var columnCount = tableHeaders.length;
+
+        //Add the header row.
+        var row = $(table[0].insertRow(-1));
+        for (var j = 0; j < columnCount; j++) {
+            var headerCell = $("<th />");
+            headerCell.html(tableHeaders[j]);
+            row.append(headerCell);
+        }
+
+        for (var x = 0; x < games[i].length; x++) {
+            //Fill direct games dictionary
+            direct[games[i][x]] = []
+            //Add the data rows.
+            row = table[0].insertRow(-1)
+            for (var j = 0; j < columnCount; j++) {
+                var cell = row.insertCell();
+                if (j == 0) {
+                    row.id = games[i][x]
+                    cell.innerHTML = games[i][x] 
+                } else if ( j == 1) {
+                    cell.innerHTML = 0
+                } else if ( j == 2) {
+                    cell.innerHTML = 0
+                } else if ( j == 3) {
+                    cell.innerHTML = 0
+                } else if ( j == 4) {
+                    cell.innerHTML = 0
+                } else if (j == 5) { // GF
+                    cell.innerHTML = 0
+                }
+                else if (j == 6) { // GC
+                    cell.innerHTML = 0
+                }
+                else if (j == 7) { // GD
+                    cell.innerHTML = 0
+                }
+            }
+        }
+        var dvTable = $(tabName);
+        dvTable.html("");
+        dvTable.append(table);
+        
+    }
+    // Validation for group form, update the table of each group
+    $('input').focusout( function (){ // focus each time the user clicksout of the input field
+        var res = this.value
+        if (res < 0 && !isNaN(res)) {
+            this.value = -this.value
+        }
+        if(!res.isInteger && !isNaN(res)){
+            this.value = Math.ceil(this.value)
+        }
+        var group = this.id.slice(0,1)
+        if (group == 'q' || group == 's'|| group =='f') {
+            return false
+        }
+        direct.clear()
+        var tableId = '#' + this.id.slice(0,1) + 'Table'
+        var teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        var a,b, resO
+        if(this.name == 'resA') {
+            resO = $(`input[name=resB][id=${this.id}]`).val()
+        }else{
+            resO = $(`input[name=resA][id=${this.id}]`).val()
+        }
+        if (resO.length != 0 && res.length != 0){
+            var pointA = 0
+            var win = 0, winB = 0, lose=0, loseB = 0, tie = 0, tieB = 0, tt
+            var pointB = 0
+            var diffA = 0, diffB = 0;
+            for (i=1; i<=6; i++){
+                teamA = $(`span[name=teamA][id=${group+i}]`).text()
+                teamB = $(`span[name=teamB][id=${group+i}]`).text()
+                $this = $('#' + teamA).find("td");
+                $this.eq(1).html(0);
+                $this.eq(2).html(0);
+                $this.eq(3).html(0);
+                $this.eq(4).html(0);
+                $this.eq(5).html(0);
+                $this.eq(6).html(0);
+                $this.eq(7).html(0);
+                
+                $this = $('#' + teamB).find("td");
+                $this.eq(1).html(0);
+                $this.eq(2).html(0);
+                $this.eq(3).html(0);
+                $this.eq(4).html(0);
+                $this.eq(5).html(0);
+                $this.eq(6).html(0);
+                $this.eq(7).html(0);
+            }
+            for(j=1; j<=6; j++){
+                tt = group + j
+                teamA = $(`span[name=teamA][id=${tt}]`).text()
+                teamB = $(`span[name=teamB][id=${tt}]`).text()
+                resA = $(`input[name=resA][id=${tt}]`).val()
+                resB = $(`input[name=resB][id=${tt}]`).val()
+                if (resA.length < 1 || resB.length < 1){
+                    continue
+                }
+                teamA = $(`span[name=teamA][id=${tt}]`).text()
+                teamB = $(`span[name=teamB][id=${tt}]`).text()
+
+                if (resA > resB) {
+                    $this = $('#' + teamA).find("td"); // win case for teamA
+                    if($this.eq(1).text() == 0 ){
+                        win = 0
+                    } else {
+                        win = parseInt($this.eq(1).text())
+                    }
+                    win += 1
+                    res = win
+                    $this.eq(1).html(res);
+                    if($this.eq(4).text() == 0 ){
+                        pointA = 0
+                    } else {
+                        pointA = parseInt($this.eq(4).text())
+                    }
+                    pointA += 3
+                    res = pointA
+                    $this.eq(4).html(res)
+
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)                    
+                    diffA = parseInt($this.eq(7).text())
+                    diffA += parseInt(resA) - parseInt(resB)
+                    res = diffA
+                    $this.eq(7).html(res)
+                    
+                    $this = $('#' + teamB).find("td");
+                    if($this.eq(2).text() == 0 ){
+                        loseB = 0
+                    } else {
+                        loseB = parseInt($this.eq(2).text())
+                    }
+                    loseB += 1
+                    res = loseB
+                    $this.eq(2).html(res)
+
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)                    
+                    diffB = parseInt($this.eq(7).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(7).html(res);
+
+                    // fill direct dict with defeated team
+                    if(!direct[teamA].includes(teamB)) {
+                        direct[teamA].push(teamB)
+                    }
+                }  else if (resA < resB) { //TeamB winner case
+                    $this = $('#' + teamB).find("td");
+                    if($this.eq(1).text() == 0 ){
+                        winB = 0
+                    } else {
+                        winB = parseInt($this.eq(1).text())
+                    }
+                    winB += 1
+                    res = winB
+                    $this.eq(1).html(res);
+                    if($this.eq(4).text() == 0 ){
+                        pointB = 0
+                    } else {
+                        pointB = parseInt($this.eq(4).text())
+                    }
+                    pointB += 3
+                    res = pointB
+                    $this.eq(4).html(res)
+
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)
+                    diffB = parseInt($this.eq(7).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(7).html(res)
+
+                    $this = $('#' + teamA).find("td");
+                    if($this.eq(2).text() == 0 ){
+                        lose = 0
+                    } else {
+                        lose = parseInt($this.eq(2).text())
+                    }
+                    lose += 1
+                    res = lose
+                    $this.eq(2).html(res)
+
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)
+                    diffA = parseInt($this.eq(7).text())
+                    diffA += resA - resB
+                    res = diffA
+                    $this.eq(7).html(res);
+
+                    // fill direct dict with defeated team
+                    if(!(direct[teamB].includes(teamA))) {
+                        direct[teamB].push(teamA)
+                    }
+                } else {
+                    $this = $('#' + teamA).find("td");
+                    if($this.eq(3).text() == 0 ){
+                        tie = 0
+                    } else {
+                        tie = parseInt($this.eq(3).text())
+                    }
+                    tie += 1
+                    res = tie
+                    $this.eq(3).html(res);
+                    val = $this.eq(4).text() //points row
+                    if($this.eq(4).text() == 0 ){
+                        pointA = 0
+                    } else {
+                        pointA = parseInt($this.eq(4).text())
+                    }
+                    pointA += 1
+                    res = pointA
+                    $this.eq(4).html(res)
+
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resA)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resB)
+                    $this.eq(6).html(res)
+                    diffA = parseInt($this.eq(7).text())
+                    diffA += resA - resB
+                    res = diffA
+                    $this.eq(7).html(res)
+
+                    $this = $('#' + teamB).find("td");
+                    if($this.eq(3).text() == 0 ){
+                        tieB = 0
+                    } else {
+                        tieB = parseInt($this.eq(3).text())
+                    }
+                    tieB += 1
+                    res = tieB
+                    $this.eq(3).html(res);
+                    val = $this.eq(4).text() //points row
+                    if($this.eq(4).text() == 0 ){
+                        pointB = 0
+                    } else {
+                        pointB = parseInt($this.eq(4).text())
+                    }
+                    pointB += 1
+                    res = pointB
+                    $this.eq(4).html(res)
+                    
+                    // GF, GC, GF
+                    res = parseInt($this.eq(5).text()) + parseInt(resB)
+                    $this.eq(5).html(res)
+                    res = parseInt($this.eq(6).text()) + parseInt(resA)
+                    $this.eq(6).html(res)
+                    diffB = parseInt($this.eq(7).text())
+                    diffB += resB - resA
+                    res = diffB
+                    $this.eq(7).html(res);
+                }
+            }
+        }
+       
+    })
+    $('input').focusout( function(){ // Sort table
+        var group = this.id.slice(0,1)
+        if (group == 'q' || group == 's'|| group =='f') {
+            return false
+        }
+        $(this).data('result', $(this).val());
+        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        $this = $('#' + teamB).find("td")
+        val = $this.eq(4).text()
+        var tabName = this.id.slice(0,1) + 'InTable'
+        if (parseInt(val) > 0) {
+            sortTable(tabName)
+        }
+    })
+    function hide(value){
+        var select = document.getElementById(value + '-select');
+        if (select){
+            select.style.visibility = 'hidden';
+        }
+    }
+
+    function show(value){
+        var select = document.getElementById(value + '-select');
+        if (select){
+            select.style.visibility = 'visible';
+        }
+    }
+    function showFinal(value){
+        var select = document.getElementById(value);
+        if (select){
+            select.style.visibility = 'visible';
+        }
+    }
+    $('input').focusin( function (){
+        $(`#${this.id}-select option[value='teamA']`).each( function(){
+            $(this).remove();
+        })
+        $(`#${this.id}-select option[value='teamB']`).each( function(){
+            $(this).remove();
+        })
+        hide(`${this.id}`)
+    })
+
+    function removeDuplicates(arr) {
+        return arr.filter((item,
+            index) => arr.indexOf(item) === index);
+    }
+
+    function allAreEqual(obj) {
+        return new Set(Object.values(obj)).size === 1;
+    }
+
+    $('#groupForm').click( function () { // calculate groups and check ties
+        for (t=1; t <= 8; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
+        var table, tableName, prev, x
+        for(i=0; i <= groups.length; i++){
+            
+            tableName = groups[i] + 'InTable'
+            table =  document.getElementById(tableName)
+            rows = table.rows
+            prev = 0
+            var maxTeam, secTeam, maxPoints, cases = 0 // qualy cases 0 = points; case 1 = tie 
+            var points = []
+            for (j=1; j < (rows.length); j++) { // append points to check repeated
+                x = rows[j].getElementsByTagName("TD")[4];
+                points.push(x.innerHTML)
+            }
+            var stores = 0, reps = []
+            for (j=0; j <= (points.length-1); j++) { // check if there are repeated games
+                var rep = false
+                if (stores == points[j])
+                    reps.push(j)
+                if (reps.length != 0 && j == points.length-1) {
+                    cases = 0
+                } else if (reps.length > 0) {
+                    if (j < 3) {
+                        cases = 1
+                        break
+                    }
+                }
+                stores = points[j]
+            }
+            points = []
+            cases = 0 // ignore tie, use table results
+            for (j=1; j < (rows.length - 1); j++) {
+                x = rows[j].getElementsByTagName("TD")[4];
+                teamN = rows[j].getElementsByTagName("TD")[0];
+                if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    maxPoints = Number(x.innerHTML)
+                    maxTeam = teamN.innerHTML
+                }
+            }
+            prev = 0
+            for (k=1; k < (rows.length - 1); k++) {
+                x = rows[k].getElementsByTagName("TD")[4];
+                teamN = rows[k].getElementsByTagName("TD")[0];
+                if (teamN.innerHTML == maxTeam) { continue }
+                if (Number(x.innerHTML) > prev) {
+                    prev = Number(x.innerHTML)
+                    secTeam = teamN.innerHTML
+                }
+            }
+            if (cases == 0) { // If there are no repeated on points, validate the first and secod to qualify
+                
+            } else { // tie case
+                break; // ignore tie case, use table
+                maxTeam = ''
+                secTeam = ''
+                var tablePoints = []
+                for (t=1; t <= rows.length - 1 ; t++ ) {
+                    rr = rows[t].getElementsByTagName("TD")[4];
+                    tablePoints.push(Number(rr.innerHTML))
+                }
+                simil = []
+                for(t=0; t <= tablePoints.length ; t++) {
+                    p1 = tablePoints[t]
+                    for(x=t+1 ; x<=tablePoints.length; x++){
+                        if(tablePoints[x] == p1){
+                            simil.push(x)
+                        }
+                    }
+                    if (simil[0] == 1){
+                        simil.push(0)
+                    } else {
+                        teamN1 = rows[1].getElementsByTagName("TD")[0];
+                        maxTeam = teamN1.innerHTML
+                    }
+                    if (simil[0] == 2){
+                        simil.push(3)
+                    }
+                }
+                tieIdx = removeDuplicates(simil)
+                resDictDif = {}
+                resDictG = {}
+                tieIdx.map(values => {
+                    j = values + 1
+                    teamN = rows[j].getElementsByTagName("TD")[0];
+                    totalGoalsA= 0, diff = 0
+                    $(`span[value=${teamN.innerHTML}]`).each( function () {
+                        if ($(this).attr('name') == 'teamA'){
+                            side = 'resA'
+                            contra = 'resB'
+                        } else {
+                            side = 'resB'
+                            contra = 'resA'
+                        }
+                        goal = $(`input[id=${this.id}][name=${side}]`).val()
+                        con = $(`input[id=${this.id}][name=${contra}]`).val()
+                        totalGoalsA = Number(goal) + Number(totalGoalsA)
+                        diff = Number(goal) + Number(diff) - Number(con)
+                    })
+                    resDictDif[teamN.innerHTML] = diff
+                    resDictG[teamN.innerHTML] = totalGoalsA
+                })
+                if (!allAreEqual(resDictDif)) {
+                    result = Object.entries(resDictDif).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                    delete resDictDif[result]
+                    delete resDictG[result]
+                    if (maxTeam == ''){
+                        maxTeam = result
+                    } else {
+                        secTeam = result
+                    }
+                    if(Object.keys(resDictDif).length == 1){
+                        secTeam = Object.keys(resDictDif)[0];
+                    }else if (!allAreEqual(resDictDif)) {
+                        result2 = Object.entries(resDictDif).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    } else if (!allAreEqual(resDictG)) {
+                        result2 = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    }
+                } else if (!allAreEqual(resDictG)) {
+                    result = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                    delete resDictG[result]
+                    if (maxTeam == ''){
+                        maxTeam = result
+                        break
+                    } else {
+                        secTeam = result
+                    }
+                    if (!allAreEqual(resDictG)) {
+                        result2 = Object.entries(resDictG).reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                        if (secTeam == ''){
+                            secTeam = result2
+                        }
+                    }
+                }
+                if (maxTeam == '' || secTeam == '') { // Direct game
+                    for (j=1; j < (rows.length - 1); j++) {
+                        x = rows[j].getElementsByTagName("TD")[4];
+                        next = rows[j+1].getElementsByTagName("TD")[4];
+                        teamN = rows[j].getElementsByTagName("TD")[0];
+                        teamNB = rows[j+1].getElementsByTagName("TD")[0];
+                        if (maxTeam != ''){
+                            continue;
+                        }
+                        $(`span[value=${teamN.innerHTML}]`).each( function (){
+                            if ($(this).attr('name') == 'teamA'){
+                                side = 'resA'
+                                contra = 'resB'
+                            } else {
+                                side = 'resB'
+                                contra = 'resA'
+                            }
+                            otherTeam = $(`span[id=${this.id}]`).text()
+                            if (otherTeam == teamNB.innerHTML){
+                                goal = $(`input[id=${this.id}][name=${side}]`).val()
+                                con = $(`input[id=${this.id}][name=${contra}]`).val()
+                                if (goal > con){
+                                    if(maxTeam != ''){
+                                        secTeam = teamN.innerHTML
+                                    } else {
+                                        maxTeam = teamN.innerHTML
+                                        secTeam = teamNB.innerHTML
+                                    }
+                                } else {
+                                    if(maxTeam != ''){
+                                        secTeam = teamNB.innerHTML
+                                    } else {
+                                        maxTeam = teamNB.innerHTML
+                                        secTeam = teamN.innerHTML
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+
+            }
+            // Add qualificated teams to the 8 group form
+            if (groups[i] == 'A') {
+                $(`span[name=teamA][id='q1']`).text(maxTeam)
+                $(`span[name=teamB][id='q3']`).text(secTeam)
+            } else if (groups[i] == 'B') {
+                $(`span[name=teamA][id='q3']`).text(maxTeam)
+                $(`span[name=teamB][id='q1']`).text(secTeam)
+            } else if (groups[i] == 'C') {
+                $(`span[name=teamA][id='q2']`).text(maxTeam)
+                $(`span[name=teamB][id='q4']`).text(secTeam)
+            } else if (groups[i] == 'D') {
+                $(`span[name=teamA][id='q4']`).text(maxTeam)
+                $(`span[name=teamB][id='q2']`).text(secTeam)
+            } else if (groups[i] == 'E') {
+                $(`span[name=teamA][id='q5']`).text(maxTeam)
+                $(`span[name=teamB][id='q7']`).text(secTeam)
+            } else if (groups[i] == 'F') {
+                $(`span[name=teamA][id='q7']`).text(maxTeam)
+                $(`span[name=teamB][id='q5']`).text(secTeam)
+            } else if (groups[i] == 'G') {
+                $(`span[name=teamA][id='q6']`).text(maxTeam)
+                $(`span[name=teamB][id='q8']`).text(secTeam)
+            } else if (groups[i] == 'H') {
+                $(`span[name=teamA][id='q8']`).text(maxTeam)
+                $(`span[name=teamB][id='q6']`).text(secTeam)
+            }
+        }
+    })
+
+    $('#8vos').click( function (){
+        for (t=9; t <= 12; t++){
+            $(`span[name=teamA][id='q${t}']`).text('')
+            $(`span[name=teamB][id='q${t}']`).text('')
+            $(`#q${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#q${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
+        for (i=1; i <= 8 ; i++) {
+            resA = $(`input[name=resA][id=q${i}]`).val()
+            resB = $(`input[name=resB][id=q${i}]`).val()
+            var teamA = $(`span[name=teamA][id=q${i}]`).text()
+            var teamB = $(`span[name=teamB][id=q${i}]`).text()
+            var teamW, side, winner
+            var tab = 8
+            side = i%2 == 0 ? 'B' : 'A'
+            if (i == 2 || i == 4) {
+                tab = 7
+            } else if (i == 5 || i == 7){
+                tab = 5
+            } else if (i == 6 || i == 8){
+                tab = 4
+            }
+            if (resA == resB){
+                teamW = $(`[id=q${i}-select] option:selected`).text()
+            }
+            if (resA > resB) { // +8 to q 4tos
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamA)
+                winner = teamA
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamB)
+                winner = teamB
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='q${i+tab}']`).text(teamW)
+                winner = teamW
+            }
+            $('<input>').attr({ // Hidden input for winner team
+                type: 'hidden',
+                id: `q${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#q${i}`);
+        }
+    })
+
+    $('#4tos').click( function (){
+        for (t=1; t <= 2; t++){
+            $(`span[name=teamA][id='semi${t}']`).text('')
+            $(`span[name=teamB][id='semi${t}']`).text('')
+            $(`#semi${t}-select option[value='teamA']`).each( function(){
+                $(this).remove();
+            })
+            $(`#semi${t}-select option[value='teamB']`).each( function(){
+                $(this).remove();
+            })
+            hide(`q${t}`)
+        }
+        for (i=9; i <= 12 ; i++) {
+            resA = $(`input[name=resA][id=q${i}]`).val()
+            resB = $(`input[name=resB][id=q${i}]`).val()
+            var teamA = $(`span[name=teamA][id=q${i}]`).text()
+            var teamB = $(`span[name=teamB][id=q${i}]`).text()
+            var side, s, teamW
+            side = i%2 == 0 ? 'B' : 'A'
+            if (resA == resB){
+                teamW = $(`[id=q${i}-select] option:selected`).text()
+            }
+            if (i == 9 || i == 10) { // s means semi for calc semi side
+                s = 2
+            } else {
+                s = 1
+            }
+            if (resA > resB) {
+                $(`span[name=team${side}][id='semi${s}']`).text(teamA)
+                winner = teamA
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='semi${s}']`).text(teamB)
+                winner = teamB
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='semi${s}']`).text(teamW)
+                winner = teamW
+            }
+            $('<input>').attr({
+                type: 'hidden',
+                id: `q${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#q${i}`);
+        }
+    })
+
+    $('#semi').click( function (){
+        $(`span[name=teamA][id='final']`).text('')
+        $(`span[name=teamB][id='final']`).text('')
+        // Reset any entry in the finale array.
+        $(`#finale`).empty();
+        
+        hide(`q${t}`)
+        for (i=1; i <= 2 ; i++) {
+            resA = $(`input[name=resA][id=semi${i}]`).val()
+            resB = $(`input[name=resB][id=semi${i}]`).val()
+            var teamA = $(`span[name=teamA][id=semi${i}]`).text()
+            var teamB = $(`span[name=teamB][id=semi${i}]`).text()
+            var side, teamW
+            side = i%2 == 0 ? 'B' : 'A'
+            if (resA == resB){
+                teamW = $(`[id=semi${i}-select] option:selected`).text()
+            }
+            if (resA > resB) {
+                $(`span[name=team${side}][id='final']`).text(teamA)
+                winner = teamA
+                loose = teamB
+            } else if (resA < resB) {
+                $(`span[name=team${side}][id='final']`).text(teamB)
+                winner = teamB
+                loose = teamA
+            } else { // Case tie, check how to get value from drop down
+                $(`span[name=team${side}][id='final']`).text(teamW)
+                winner = teamW
+                if (teamW == teamA){
+                    loose = teamB
+                } else {
+                    loose = teamA
+                }
+            }
+            if(teamA.length > 0){
+                $('#finale').append(`
+                <option value=${winner}>${winner}</option>
+                `)
+            }
+            
+            $('<input>').attr({
+                type: 'hidden',
+                id: `semi${i}`,
+                name: 'winnerTeam',
+                value: winner
+            }).appendTo(`#semi${i}`);
+        }
+    })
+
+    $('#finalSubmit').click( function () {
+        resA = $(`input[id=goaler]`).val();
+        goaler = resA
+    })
+
+    $('#modalSubmit').click( function (){
+        resA = $(`input[name=resA][id=final]`).val()
+        resB = $(`input[name=resB][id=final]`).val()
+        var teamA = $(`span[name=teamA][id=final]`).text()
+        var teamB = $(`span[name=teamB][id=final]`).text()
+        var teamW
+        if (resA == resB){
+            teamW = $(`[id=finale] option:selected`).text()
+        }
+        if (resA > resB) {
+            winner = teamA
+        } else if (resA < resB) {
+            winner = teamB
+        } else { // Case tie, check how to get value from drop down
+            winner = teamW
+        }
+    })
+
+    $('input').focusout( function (){ // focus each time the user clicksout of the input field
+        var res = this.value
+        var group = this.id.slice(0,1)
+        if (groups.includes(group)) {
+            return false
+        } else if ($(`option[id=${this.id}]`).val()) {
+            return false
+        }
+        var inputId = this.id
+        var teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        var data = {
+            'teamA': teamA,
+            'teamB': teamB
+        }
+        if(this.name == 'resA') {
+            var resB = $(`input[name=resB][id=${this.id}]`).val()
+            if (resB.length != 0 && res.length != 0){
+                if (res == resB) {
+                    show(this.id)
+                    for(var val in data) {
+                        $(`#${this.id}-select`).append(new Option(data[val],val))
+                    }
+                }
+            }
+        } else {
+            var resA = $(`input[name=resA][id=${this.id}]`).val()
+            res = this.value
+            if (resA.length != 0 && res.length != 0) {
+                if (res == resA) {
+                    show(this.id)
+                    for(var val in data) {
+                        $(`#${this.id}-select`).append(new Option(data[val],val))
+                    }
+                }
+            }
+        }
+    })
+
+    $('input').focusout( function () {// Finale analisis
+        if (this.id != 'final') {
+            return;
+        }
+        resA = $(`input[name=resA][id=final]`).val()
+        resB = $(`input[name=resB][id=final]`).val()
+        teamA = $(`span[name=teamA][id=${this.id}]`).text()
+        teamB = $(`span[name=teamB][id=${this.id}]`).text()
+        if (resA > resB) {
+            showFinal('finale')
+            // if teamA won only keep teamA here.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamA}>${teamA}</option>
+                `)
+        } else if (resA < resB) {
+            showFinal('finale')
+            // if teamB won only keep teamB here.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamB}>${teamB}</option>
+                `)
+        } else {
+            // If it is a tie keep both teams.
+            $(`#finale`).empty();
+            $('#finale').append(`
+                <option value=${teamA}>${teamA}</option>
+                `)
+            $('#finale').append(`
+                <option value=${teamB}>${teamB}</option>
+            `)
+            showFinal('finale')
+        }
+    })
+
+
+</script>
+{% endblock javascript %}

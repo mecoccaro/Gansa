@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %} Gansa {% endblock %}
+<body>
+{% load static %}
+{% load has_group %}
+{% block content %}
+{% if request.user|has_group:"Family" %}
+    {% include "user/tournament-card-fam.html" %}
+{% elif request.user|has_group:"edFriends" %}
+    {% include "user/tournament-card-edf.html" %}
+    <p><a href="{% url 'logout' %}">Log Out</a></p>
+{% else %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            {% csrf_token %}
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item" aria-current="page">
+                                        <h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
+                                    </li>
+                                    <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+                                </ol>
+                            </nav>
+                            <div class="card" style="margin: 5%">
+
+                                <!-- Card image -->
+                                <img class="card-img-top" src="https://cms.somosfanaticos.com/__export/1662233169975/sites/fanaticos/img/2022/09/03/qatar_logo_fifa_crop1662233169506.jpg_1624932088.jpg" alt="Card image cap">
+                              
+                                <!-- Card content -->
+                                <div class="card-body">
+                              
+                                  <!-- Title -->
+                                  <h4 class="card-title"><a>Sin torneos</a></h4>
+                                </div>
+                              </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+</body>
+
