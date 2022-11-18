@@ -79,5 +79,7 @@ class GameQuinielaQualify(models.Model):
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
     scoreB = models.IntegerField(null=False)
+    teamA = models.CharField(max_length=100, null=True)
+    teamB = models.CharField(max_length=100, null=True)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
     gameId = models.CharField(max_length=20, null=True)

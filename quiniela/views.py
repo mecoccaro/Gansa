@@ -109,119 +109,47 @@ def gamesView(request, qt_id):
     if request.method == 'POST':
         body = json.loads(request.body)
         results = {}
-        count = 0
-        aux = 0
-        for inner in body:
-            for idx, res in enumerate(inner):
-                if res['name'] == 'csrfmiddlewaretoken':
-                    continue
-                if (count == 0):
-                    if aux <= 0:
-                        phase = 'groups'
-                        results[phase] = {}
-                        aux +=1
-                elif (count == 1):
-                    if aux == 1:
-                        phase = '8vos'
-                        results[phase] = {}
-                        aux +=1
-                elif (count == 2):
-                    if aux == 2:
-                        phase = '4tos'
-                        results[phase] = {}
-                        aux +=1
-                elif (count == 3):
-                    if aux == 3:
-                        phase = 'semi'
-                        results[phase] = {}
-                        aux +=1
-                elif (count == 4):
-                    if aux == 4:
-                        phase = 'final'
-                        results[phase] = {}
-                        aux +=1
-                elif (count == 5):
-                    if aux == 5:
-                        phase = 'goaler'
-                        results[phase] = {}
-                        aux +=1
-                if res['name'] == 'gameId':
-                    gameIds = res['value']
-                    if gameIds not in results[phase]:
-                        results[phase][gameIds] = {}
-                    continue
-                if count > 0 and res['name'] == 'winnerTeam' and phase != 'final':
-                    insideArr = inner[idx+1]
-                    gameIds = insideArr['value']
-                    if gameIds not in results[phase]:
-                        results[phase][gameIds] = {}
-                    results[phase][gameIds]['winnerTeam'] = res['value']
-                    continue
-                if res['name'] == 'resA':
-                    results[phase][gameIds]['teamA'] = res['value']
-                    continue
-                if res['name'] == 'resB':
-                    results[phase][gameIds]['teamB'] = res['value']
-                    continue
-                if phase == 'final':
-                    results[phase][gameIds]['winnerTeam'] = res['value']
-                if res['name'] == 'goaler':
-                    results[phase] = res['value']
-            count += 1
-        qualyTypes = []
-        logger.info('Quiniela submitted')
-        print(qt_id)
-        print(json.dumps(results))
-        for i in range(13):
-            qualyTypes.append('q'+str(i))
-        qualyTypes.append('semi1')
-        qualyTypes.append('semi2')
-        qualyTypes.append('final')
-        for keys in results.keys():
-            phase = keys
-            if phase != 'goaler':
-                for gameIds in results[phase].keys():
-                    resA = results[phase][gameIds]['teamA']
-                    resB = results[phase][gameIds]['teamB']
-                    if len(resA) == 0:
-                        resA = 0
-                    elif len(resA) == 0:
-                        resB = 0
-                    if(phase == 'groups'): #groups
-                        games = GameQuinielaGroups()
-                        gameTeams = Game.objects.get(gameId=gameIds)
-                        teamA = Teams.objects.get(name=gameTeams.teamA.name)
-                        teamB = Teams.objects.get(name=gameTeams.teamB.name)
-                        tie = Teams.objects.get(name='None')
-                        if  resA > resB:
-                            games.winner = teamA
-                        elif resB > resA:
-                            games.winner = teamB
-                        else:
-                            games.winner = tie
-                        games.user_quiniela = userQuiniela
-                        games.scoreA = resA
-                        games.scoreB = resB
-                        games.gameId = gameIds
-                        games.save()
-                    else: # qualy games
-                        games = GameQuinielaQualify()
-                        teamName = results[phase][gameIds]['winnerTeam']
-                        if teamName:
-                            winner = Teams.objects.get(name=teamName)
-                        else:
-                            winner = Teams.objects.get(name='None')
-                        games.winner = winner
-                        games.user_quiniela = userQuiniela
-                        games.scoreA = resA
-                        games.scoreB = resB
-                        games.gameId = gameIds
-                        games.save()
+        for res in body:
+            resA = res['scoreA']
+            resB = res['scoreB']
+            if res['phase'] == 'groups':
+                games = GameQuinielaGroups()
+                gameTeams = Game.objects.get(gameId=res['gameId'])
+                teamA = Teams.objects.get(name=gameTeams.teamA.name)
+                teamB = Teams.objects.get(name=gameTeams.teamB.name)
+                tie = Teams.objects.get(name='None')
+                if  resA > resB:
+                    games.winner = teamA
+                elif resB > resA:
+                    games.winner = teamB
+                else:
+                    games.winner = tie
+                games.user_quiniela = userQuiniela
+                games.scoreA = resA
+                games.scoreB = resB
+                games.gameId = res['gameId']
+                games.save()
             else:
-                userQuiniela.goaler = results['goaler']
+                games = GameQuinielaQualify()
+                teamName = res['winner']
+                teamNA = res['teamA']
+                teamNB = res['teamB']
+                if teamName:
+                    winner = Teams.objects.get(name=teamName)
+                else:
+                    winner = Teams.objects.get(name='None')
+                games.winner = winner
+                games.user_quiniela = userQuiniela
+                games.scoreA = resA
+                games.scoreB = resB
+                games.gameId = res['gameId']
+                games.teamA = res['teamA']
+                games.teamB = res['teamB']
+                games.save()
+            if (res['phase'] == 'final'):
+                userQuiniela.goaler = res['goaler']
                 userQuiniela.filled = True
                 userQuiniela.save()
-
         return HttpResponseRedirect(reverse('preview', kwargs={'uq_id': userQuiniela.id}))
 
     context = {
