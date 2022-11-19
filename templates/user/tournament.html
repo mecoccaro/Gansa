@@ -22,6 +22,7 @@
 																	{% else %}
 																		<li class="breadcrumb-item"><a href="{% url 'games' tournament.id %}">Llenar juegos</a></li>
 																	{% endif %}
+																	<li class="breadcrumb-item"><a href="{% url 'instructions' tournament.id %}">Instrucciones</a></li>
 																	<li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
 																</ol>
 															</nav>

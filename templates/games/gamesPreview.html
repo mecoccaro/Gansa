@@ -16,6 +16,7 @@
                                     <li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
                                     <li class="breadcrumb-item"><a href="{% url 'tournament' tournament_id %}">Tabla</a></li>
                                     <li class="breadcrumb-item"><a href="#">Mis juegos</a></li>
+                                    <li class="breadcrumb-item"><a href="{% url 'instructions' tournament_id %}">Instrucciones</a></li>
                                     <li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
                                 </ol>
                             </nav>
@@ -47,12 +48,14 @@
                         <h3>8vos</h3>
                         {% for values in qualy %}
                         {% if values.gameId|slice:':1' == 'q' and values.gameId|slice:'1:3'|to_int < 9 %}
-                            <div class="input-group">
+                            <div class="input-group" style="padding-bottom: 15px;">
+                                <span class="input-group-text">{{ values.teamA }}</span>
                                 <input type="number" value="{{values.scoreA}}" style="width:10%" readonly>
                                 <input type="number" value="{{values.scoreB}}" style="width:10%" readonly>
-                                <p>winner</p>
-                                <span class="input-group-text" style="width: 30%;">{{ values.winner.name }}</span>
+                                <span class="input-group-text">{{ values.teamB }}</span>
+                                <span class="input-group-text" >GANADOR: {{ values.winner.name }}</span>
                             </div>
+                            
                         {% endif %}
                         {% endfor %}
                     </div>
@@ -60,11 +63,12 @@
                         <h3>4tos</h3>
                         {% for values in qualy %}
                         {% if values.gameId|slice:':1' == 'q' and values.gameId|slice:'1:3'|to_int > 8 %}
-                            <div class="input-group">
+                            <div class="input-group" style="padding-bottom: 15px;">
+                                <span class="input-group-text">{{ values.teamA }}</span>
                                 <input type="number" value="{{values.scoreA}}" style="width:10%" readonly>
                                 <input type="number" value="{{values.scoreB}}" style="width:10%" readonly>
-                                <p>winner</p>
-                                <span class="input-group-text" style="width: 30%;">{{ values.winner.name }}</span>
+                                <span class="input-group-text">{{ values.teamB }}</span>
+                                <span class="input-group-text" >GANADOR: {{ values.winner.name }}</span>
                             </div>
                         {% endif %}
                         {% endfor %}
@@ -73,12 +77,13 @@
                         <h3>semi</h3>
                         {% for values in qualy %}
                         {% if values.gameId|slice:':4' == 'semi' %}
-                            <div class="input-group">
+                            <div class="input-group" style="padding-bottom: 15px;">
+                                <span class="input-group-text">{{ values.teamA }}</span>
                                 <input type="number" value="{{values.scoreA}}" style="width:10%" readonly>
                                 <input type="number" value="{{values.scoreB}}" style="width:10%" readonly>
-                                <p>winner</p>
-                                <span class="input-group-text" style="width: 30%;">{{ values.winner.name }}</span>
-                            </div>
+                                <span class="input-group-text">{{ values.teamB }}</span>
+                                <span class="input-group-text" >GANADOR: {{ values.winner.name }}</span>
+                            </div> 
                         {% endif %}
                         {% endfor %}
                     </div>
@@ -87,8 +92,10 @@
                         {% for values in qualy %}
                         {% if values.gameId == 'final' %}
                             <div class="input-group">
+                                <span class="input-group-text">{{ values.teamA }}</span>
                                 <input type="number" value="{{values.scoreA}}" style="width:10%" readonly>
                                 <input type="number" value="{{values.scoreB}}" style="width:10%" readonly>
+                                <span class="input-group-text">{{ values.teamB }}</span>
                             </div>
                             <div class="p-3 mb-2 bg-warning text-dark" style="text-align: center; margin-top: 10px;">
                                 <h4>CAMPEÓN</h4>
