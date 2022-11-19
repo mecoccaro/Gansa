@@ -183,3 +183,17 @@ def gamesPreview(request, uq_id):
         'goaler': userQuiniela.goaler
         }
     return render(request, 'games/gamesPreview.html', context)
+
+def instructions(request, tournament_id):
+    try:
+        tournament = QuinielaTournament.objects.get(id=tournament_id)
+        userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
+    except:
+        raise Http404("Tournament does not exist")
+    users = UserQuiniela.objects.filter(quiniela_fk=tournament_id).order_by('-points')
+    context = {
+        'tournament': tournament, 
+        'user': users,
+        'userQuiniela': userQuiniela,
+        'tabla': userQuiniela.quiniela_fk_id}
+    return render(request, 'user/instructions.html', context)

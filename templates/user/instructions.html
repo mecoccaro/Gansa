@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %} Gansa {% endblock %}
+<body>
+{% load static %}
+{% block content %}
+<div class="container">
+		<div class="row justify-content-center">
+				<div class="col-xl-10 col-lg-12 col-md-9">
+						<div class="card o-hidden border-0 shadow-lg my-5">
+								<div class="card-body p-0">
+										<!-- Nested Row within Card Body -->
+										<div class="row">
+												<div class="col-lg-6 d-none d-lg-block bg-tournament-image"></div>
+												<div class="col-lg-6">
+														<div class="row">
+															<nav aria-label="breadcrumb">
+																<ol class="breadcrumb">
+																	<li class="breadcrumb-item"><a href="/quiniela/home/">Inicio</a></li>
+																	<li class="breadcrumb-item"><a href="{% url 'tournament' tabla%}">Tabla</a></li>
+																	{% if userQuiniela.filled %}
+																		<li class="breadcrumb-item"><a href="{% url 'preview' userQuiniela.id %}">Mis resultados</a></li>
+																	{% else %}
+																		<li class="breadcrumb-item"><a href="{% url 'games' tournament.id %}">Llenar juegos</a></li>
+																	{% endif %}
+                                                                    <li class="breadcrumb-item"><a href="{% url 'instructions' tournament.id %}">Instrucciones</a></li>
+																	<li class="breadcrumb-item"><a href="{% url 'logout' %}">Log Out</a></li>
+																</ol>
+															</nav>
+														</div>
+														<div>
+                                                            <p class="mb-0">
+                                                                Premios<br>
+
+                                                                El total del dinero acumulado va a ser repartido.<br>
+                                                                Del total X se van a retirar $10 que serán el premio para<br> el último lugar, es decir la peor quiniela (el guagui)
+                                                                Del total X-$10 se van a repartir<br>
+                                                                    60% al primer puesto<br>
+                                                                    30% al segundo puesto<br>
+                                                                    10% al tercer puesto<br>
+
+                                                            ---------------<br>
+
+                                                            Puntos<br>
+
+
+                                                            Para referencia usaremos el formato Equipo A vs Equipo B<br>
+
+
+                                                            Ronda de grupos:<br>
+
+                                                            ·  3 punto por acertar únicamente el ganador (Equipo A, Equipo B o Empate)<br>
+
+                                                            ·  1 puntos si se aciertan los goles del equipo A<br>
+
+                                                            ·  1 puntos si se aciertan los goles del equipo B<br>
+
+                                                            
+
+                                                            Clasificados de fase de grupos:<br>
+
+                                                            ·  4 ptos por cada equipo clasificado en su lugar correcto<br>
+
+
+                                                            Octavos:<br>
+
+                                                            ·  4 punto por acertar únicamente el ganador (Equipo A, Equipo B o Empate)<br>
+
+                                                            ·  2 puntos si se aciertan los goles del equipo A<br>
+
+                                                            ·  2 puntos si se aciertan los goles del equipo B<br>
+
+                                                            
+
+                                                            Clasificados de Octavos de final:<br>
+
+                                                            ·  5 ptos por cada equipo que pase de ronda en su bracket correcto<br>
+
+
+                                                            Cuartos:<br>
+
+                                                            ·  5 punto por acertar únicamente el ganador (Equipo A, Equipo B o Empate)<br>
+
+                                                            ·  3 puntos si se aciertan los goles del equipo A<br>
+
+                                                            ·  3 puntos si se aciertan los goles del equipo B<br>
+
+                                                            
+
+                                                            Clasificados de Cuartos de final:<br>
+
+                                                            ·  6 ptos por cada equipo que pase de ronda en su bracket correcto<br>
+
+
+                                                            Semis:<br>
+
+                                                            ·  6 punto por acertar únicamente el ganador (Equipo A, Equipo B o Empate)<br>
+
+                                                            ·  4 puntos si se aciertan los goles del equipo A<br>
+
+                                                            ·  4 puntos si se aciertan los goles del equipo B<br>
+
+                                                            
+
+                                                            Clasificados de semifinal:<br>
+
+                                                            ·  7 ptos por cada equipo que pase de ronda en su bracket correcto<br>
+
+
+                                                            Final:<br>
+
+                                                            ·  8 punto por acertar únicamente el ganador (Equipo A, Equipo B o Empate)<br>
+
+                                                            ·  5 puntos si se aciertan los goles del equipo A<br>
+
+                                                            ·  5 puntos si se aciertan los goles del equipo B<br>
+
+
+                                                            Extras:<br>
+
+                                                            ·  15 ptos por CAPEON<br>
+
+                                                            ·  15 ptos por GOLEADOR<br>
+
+
+                                                            Nota: no se puntúa para nada el juego de 3ero y 4to. No esta incluido<br>
+                                                            </p>
+                                                        </div>
+												</div>
+										</div>
+								</div>
+						</div>
+				</div>
+		</div>
+</div>
+{% endblock %}
+</body>
+{% block javascript %}
+<script>
+window.onload = function() {
+    if(!window.location.hash) {
+        window.location = window.location + '#loaded';
+        window.location.reload();
+    }
+}
+</script>
+{% endblock javascript%}
