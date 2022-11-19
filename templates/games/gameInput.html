@@ -94,25 +94,82 @@
     
     $("#modalSubmit").click(function (e) { //Submit game forms
         e.preventDefault();
-        var results = []
-        var formData = JSON.stringify($("#gamesForm").serializeArray()); // group form
-        results.push($("#gamesForm").serializeArray())
-        results.push($("#8Form").serializeArray())
-        results.push($("#4Form").serializeArray())
-        results.push($("#semiForm").serializeArray())
-        results.push($("#finalForm").serializeArray())
-        results.push([{'name': 'goaler', 'value': goaler}])
-        console.log(results)
-
+        var formData = []
+        $("#gamesForm > .input-group").each(function (index){
+            gameId = $(this).find('#gameId').val()
+            groupData = {
+                phase: 'groups',
+                gameId,
+                scoreA: $(this).find('[name=resA]').val(),
+                scoreB: $(this).find('[name=resB]').val()
+            }
+            formData.push(groupData)
+        })
+        console.log(formData)
+        $('#8Form > .input-group').each(function (){
+            var gameId = $(this).find('#gameId').val()
+            var groupData = {
+                phase: '8vos',
+                gameId,
+                scoreA: $(this).find('[name=resA]').val(),
+                scoreB: $(this).find('[name=resB]').val(),
+                teamA: $(this).find(`[id=${gameId}][name=teamA]`).text(),
+                teamB: $(this).find(`[id=${gameId}][name=teamB]`).text(),
+                winner: $(this).find(`[name=winnerTeam]`).val(),
+            }
+            formData.push(groupData)
+        })
+        $('#4Form > .input-group').each(function (){
+            var gameId = $(this).find('#gameId').val()
+            var groupData = {
+                phase: '4tos',
+                gameId,
+                scoreA: $(this).find('[name=resA]').val(),
+                scoreB: $(this).find('[name=resB]').val(),
+                teamA: $(this).find(`[id=${gameId}][name=teamA]`).text(),
+                teamB: $(this).find(`[id=${gameId}][name=teamB]`).text(),
+                winner: $(this).find(`[name=winnerTeam]`).val(),
+            }
+            formData.push(groupData)
+        })
+        $('#semiForm > .input-group').each(function (){
+            var gameId = $(this).find('#gameId').val()
+            var groupData = {
+                phase: 'semis',
+                gameId,
+                scoreA: $(this).find('[name=resA]').val(),
+                scoreB: $(this).find('[name=resB]').val(),
+                teamA: $(this).find(`[id=${gameId}][name=teamA]`).text(),
+                teamB: $(this).find(`[id=${gameId}][name=teamB]`).text(),
+                winner: $(this).find(`[name=winnerTeam]`).val(),
+            }
+            formData.push(groupData)
+        })
+        $('#finalForm').each(function (){
+            var gameId = $(this).find('#gameId').val()
+            var groupData = {
+                phase: 'final',
+                gameId,
+                scoreA: $(this).find('[name=resA]').val(),
+                scoreB: $(this).find('[name=resB]').val(),
+                teamA: $(this).find(`[id=${gameId}][name=teamA]`).text(),
+                teamB: $(this).find(`[id=${gameId}][name=teamB]`).text(),
+                winner: $(this).find(`[name=winnerTeam]`).val(),
+                goaler: $(this).find('#goaler').val()
+            }
+            formData.push(groupData)
+        })
         $.ajax({
             url: '/quiniela/games/{{tournament.id}}',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(results),
+            data: JSON.stringify(formData),
             headers: {'X-CSRFToken': csrftoken},
             dataType: 'json',
         });
     })
+
+
     
     function sortTable(tableName) {
         var table, rows, switching, i, pts1, pts2, gf1, gf2, diff1, diff2, shouldSwitch, div;
