@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from django.contrib import messages
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -197,3 +198,19 @@ def instructions(request, tournament_id):
         'userQuiniela': userQuiniela,
         'tabla': userQuiniela.quiniela_fk_id}
     return render(request, 'user/instructions.html', context)
+
+def analysis(request, tournament_id):
+    try:
+        tournament = QuinielaTournament.objects.get(id=tournament_id)
+        userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
+    except:
+        raise Http404("Tournament does not exist")
+    users = UserQuiniela.objects.filter(quiniela_fk=tournament_id).order_by('-points')
+    dataUrl = os.environ.get('DATA')
+    context = {
+        'tournament': tournament, 
+        'user': users,
+        'userQuiniela': userQuiniela,
+        'tabla': userQuiniela.quiniela_fk_id,
+        'data': dataUrl}
+    return render(request, 'user/analysis.html', context)
