@@ -4,6 +4,8 @@ from django.contrib.auth.models import User as DJuser
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User as DJuser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Teams(models.Model):
@@ -83,3 +85,23 @@ class GameQuinielaQualify(models.Model):
     teamB = models.CharField(max_length=100, null=True)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
     gameId = models.CharField(max_length=20, null=True)
+
+@receiver(post_save, sender=Game)
+def calc_points(sender, instance, **kwargs):
+    gameId = instance.gameId
+    scoreA = instance.scoreA
+    scoreB = instance.scoreB
+    winner = instance.winner
+    playersGames = GameQuinielaGroups.objects.filter(gameId=gameId)
+    for game in playersGames:
+        print(game.scoreA)
+        uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+        puntos = 0
+        if winner == game.winner:
+            puntos += 3
+        if game.scoreA == scoreA:
+            puntos += 1
+        if game.scoreB == scoreB:
+            puntos += 1
+        uqt.points += puntos
+        uqt.save()
