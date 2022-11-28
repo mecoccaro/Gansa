@@ -25,7 +25,7 @@ class PhasesAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 
 class UserQuinielaAdmin(admin.ModelAdmin):
-    list_display = ('points', 'quiniela_fk', 'djuser_fk')
+    list_display = ('points', 'quiniela_fk', 'djuser_fk', 'filled')
 
 
 admin.site.register(Teams, TeamsAdmin)
