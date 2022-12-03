@@ -93,7 +93,6 @@ def calc_points(sender, instance, **kwargs):
     scoreB = instance.scoreB
     winner = instance.winner
     phase = instance.phase
-    print(instance.teamA.name)
     playersGames = GameQuinielaGroups.objects.filter(gameId=gameId)
     playersGamesQ = GameQuinielaQualify.objects.filter(gameId=gameId)
     if phase.name == 'Grupos':
@@ -125,9 +124,9 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 if winner == game.winner:
                     puntos += 4
-                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 2
-                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 2
                 uqt.points += puntos
                 uqt.save()
@@ -148,9 +147,9 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 if winner == game.winner:
                     puntos += 5
-                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 3
-                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 3
                 uqt.points += puntos
                 uqt.save()
@@ -171,9 +170,9 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 if winner == game.winner:
                     puntos += 6
-                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 4
-                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 4
                 uqt.points += puntos
                 uqt.save()
