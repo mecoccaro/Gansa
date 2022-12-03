@@ -92,16 +92,88 @@ def calc_points(sender, instance, **kwargs):
     scoreA = instance.scoreA
     scoreB = instance.scoreB
     winner = instance.winner
+    phase = instance.phase
+    print(instance.teamA.name)
     playersGames = GameQuinielaGroups.objects.filter(gameId=gameId)
-    for game in playersGames:
-        print(game.scoreA)
-        uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
-        puntos = 0
-        if winner == game.winner:
-            puntos += 3
-        if game.scoreA == scoreA:
-            puntos += 1
-        if game.scoreB == scoreB:
-            puntos += 1
-        uqt.points += puntos
-        uqt.save()
+    playersGamesQ = GameQuinielaQualify.objects.filter(gameId=gameId)
+    if phase.name == 'Grupos':
+        for game in playersGames:
+            uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+            puntos = 0
+            if winner == game.winner:
+                puntos += 3
+            if game.scoreA == scoreA:
+                puntos += 1
+            if game.scoreB == scoreB:
+                puntos += 1
+            uqt.points += puntos
+            uqt.save()
+    if phase.name == '8vos':
+        if winner.name == 'None':
+            for value in playersGamesQ:
+                puntos = 0
+                uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
+                if instance.teamA.name == value.teamA:
+                    puntos += 4
+                if instance.teamB.name == value.teamB:
+                    puntos += 4
+                uqt.points += puntos
+                uqt.save()
+        else:
+            for game in playersGamesQ:
+                uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+                puntos = 0
+                if winner == game.winner:
+                    puntos += 4
+                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                    puntos += 2
+                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                    puntos += 2
+                uqt.points += puntos
+                uqt.save()
+    if phase.name == '4tos':
+        if winner.name == 'None':
+            for value in playersGamesQ:
+                puntos = 0
+                uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
+                if instance.teamA.name == value.teamA:
+                    puntos += 5
+                if instance.teamB.name == value.teamB:
+                    puntos += 5
+                uqt.points += puntos
+                uqt.save()
+        else:
+            for game in playersGamesQ:
+                uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+                puntos = 0
+                if winner == game.winner:
+                    puntos += 5
+                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                    puntos += 3
+                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                    puntos += 3
+                uqt.points += puntos
+                uqt.save()
+    if phase.name == 'semi':
+        if winner.name == 'None':
+            for value in playersGamesQ:
+                puntos = 0
+                uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
+                if instance.teamA.name == value.teamA:
+                    puntos += 6
+                if instance.teamB.name == value.teamB:
+                    puntos += 6
+                uqt.points += puntos
+                uqt.save()
+        else:
+            for game in playersGamesQ:
+                uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+                puntos = 0
+                if winner == game.winner:
+                    puntos += 6
+                if game.scoreA == scoreA and instance.teamA.name == value.teamA:
+                    puntos += 4
+                if game.scoreB == scoreB and  instance.teamB.name == value.teamB:
+                    puntos += 4
+                uqt.points += puntos
+                uqt.save()
