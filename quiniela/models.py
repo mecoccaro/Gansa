@@ -108,7 +108,7 @@ def calc_points(sender, instance, **kwargs):
             uqt.points += puntos
             uqt.save()
     if phase.name == '8vos':
-        if winner.name == 'None':
+        if winner.name == 'None' and scoreA < 0 and scoreB < 0:
             for value in playersGamesQ:
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
@@ -122,16 +122,22 @@ def calc_points(sender, instance, **kwargs):
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                if winner == game.winner:
+                gameCase = 0 # 0 means not a tie, 1 means tied game
+                if scoreA == scoreB:
+                    gameCase = 1
+                if winner == game.winner and gameCase == 0:
                     puntos += 4
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 2
                 if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 2
+                if game.scoreA == game.scoreB and gameCase == 1 and \
+                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 4
                 uqt.points += puntos
                 uqt.save()
     if phase.name == '4tos':
-        if winner.name == 'None':
+        if winner.name == 'None' and scoreA < 0 and scoreB < 0:
             for value in playersGamesQ:
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
@@ -154,7 +160,7 @@ def calc_points(sender, instance, **kwargs):
                 uqt.points += puntos
                 uqt.save()
     if phase.name == 'semi':
-        if winner.name == 'None':
+        if winner.name == 'None' and scoreA < 0 and scoreB < 0:
             for value in playersGamesQ:
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
