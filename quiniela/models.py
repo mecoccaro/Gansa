@@ -157,6 +157,9 @@ def calc_points(sender, instance, **kwargs):
                     puntos += 3
                 if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 3
+                if game.scoreA == game.scoreB and gameCase == 1 and \
+                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 5
                 uqt.points += puntos
                 uqt.save()
     if phase.name == 'semi':
