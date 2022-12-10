@@ -151,7 +151,10 @@ def calc_points(sender, instance, **kwargs):
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                if winner == game.winner:
+                gameCase = 0 # 0 means not a tie, 1 means tied game
+                if scoreA == scoreB:
+                    gameCase = 1
+                if winner == game.winner and gameCase == 0:
                     puntos += 5
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 3
@@ -177,11 +180,17 @@ def calc_points(sender, instance, **kwargs):
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                if winner == game.winner:
+                gameCase = 0 # 0 means not a tie, 1 means tied game
+                if scoreA == scoreB:
+                    gameCase = 1
+                if winner == game.winner and gameCase == 0:
                     puntos += 6
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
                     puntos += 4
                 if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
                     puntos += 4
+                if game.scoreA == game.scoreB and gameCase == 1 and \
+                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 6
                 uqt.points += puntos
                 uqt.save()
