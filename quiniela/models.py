@@ -194,3 +194,34 @@ def calc_points(sender, instance, **kwargs):
                     puntos += 6
                 uqt.points += puntos
                 uqt.save()
+    if phase.name == 'final':
+        if winner.name == 'None' and scoreA < 0 and scoreB < 0:
+            for value in playersGamesQ:
+                puntos = 0
+                uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
+                if instance.teamA.name == value.teamA:
+                    puntos += 7
+                if instance.teamB.name == value.teamB:
+                    puntos += 7
+                uqt.points += puntos
+                uqt.save()
+        else:
+            for game in playersGamesQ:
+                uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
+                puntos = 0
+                gameCase = 0 # 0 means not a tie, 1 means tied game
+                if scoreA == scoreB:
+                    gameCase = 1
+                if winner == game.winner and gameCase == 0:
+                    puntos += 8 # points for game
+                    puntos += 15 # poinst for champion
+                if game.scoreA == scoreA and instance.teamA.name == game.teamA:
+                    puntos += 5
+                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
+                    puntos += 5
+                if game.scoreA == game.scoreB and gameCase == 1 and \
+                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 8
+                print(uqt.djuser_fk.username)
+                uqt.points += puntos
+                uqt.save()
