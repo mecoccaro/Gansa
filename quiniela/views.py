@@ -44,7 +44,7 @@ def register(request):
 
     if form.is_valid():
         usrQ = UserQuiniela()
-        quiniela = QuinielaTournament.objects.get(id='90a84781-1f80-4b1b-b330-c63ed2f8ec41') # main tournament
+        quiniela = QuinielaTournament.objects.get(id='51c4a49d-6f00-4e6d-8359-45281949ea3c')  # main tournament
         userCreated = form.save()
         us = User.objects.get(id=userCreated.id)
         user = form.cleaned_data.get('username')
@@ -65,8 +65,8 @@ def register(request):
     return render(request, 'registration/signup.html', {})
 
 def userHome(request):
-    famTournament = QuinielaTournament.objects.filter(group = 'F')
-    efTournament = QuinielaTournament.objects.filter(group = 'EF')
+    famTournament = QuinielaTournament.objects.filter(group='F')
+    efTournament = QuinielaTournament.objects.filter(group='EF')
     tournament = QuinielaTournament.objects.all
     teams = Teams.objects.all
     context = {'tournament': tournament, 'famtournament': famTournament, 'teams': teams}
@@ -212,5 +212,6 @@ def analysis(request, tournament_id):
         'user': users,
         'userQuiniela': userQuiniela,
         'tabla': userQuiniela.quiniela_fk_id,
-        'data': dataUrl}
+        'data': dataUrl
+    }
     return render(request, 'user/analysis.html', context)
