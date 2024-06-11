@@ -15,7 +15,7 @@ from .models import *
 
 logger = logging.getLogger(__name__)
 
-groupsIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+groupsIds = ['A', 'B', 'C', 'D', 'E', 'F']  # Extend to G H or more groups if necessary
 
 
 def handler404(request, *args, **argv):
