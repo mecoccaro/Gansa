@@ -3,11 +3,13 @@ import logging
 import os
 
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
@@ -21,6 +23,7 @@ from .models import *
 logger = logging.getLogger(__name__)
 
 groupsIds = ['A', 'B', 'C', 'D', 'E', 'F']  # Extend to G H or more groups if necessary
+INFO = 1001
 
 
 def handler404(request, *args, **argv):
@@ -79,6 +82,16 @@ def userHome(request):
 
 
 def tournamentView(request, tournament_id):
+    obj = get_object_or_404(QuinielaTournament, pk=tournament_id)
+
+    LogEntry.objects.log_action(
+        user_id=request.user.id,
+        content_type_id=ContentType.objects.get_for_model(obj).pk,
+        object_id=obj.pk,
+        object_repr=str(obj),
+        action_flag=INFO,
+        change_message="Accedio al torneo."
+    )
     try:
         tournament = QuinielaTournament.objects.get(id=tournament_id)
         userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
@@ -94,6 +107,7 @@ def tournamentView(request, tournament_id):
 
 def gamesView(request, qt_id):
     tableHeaders = ['Equipo', 'G', 'P', 'E', 'Puntos', 'GF', 'GC', 'GD']
+
     try:
         tournament = QuinielaTournament.objects.get(id=qt_id)
         games = Game.objects.filter(Tournament_fk=qt_id).order_by('gameId')
