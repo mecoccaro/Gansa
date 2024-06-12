@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
 
-from .models import Game, Phases, QuinielaTournament, Teams, UserQuiniela, GameQuinielaGroups
+from .models import Game, Phases, QuinielaTournament, Teams, UserQuiniela, GameQuinielaGroups, GameQuinielaQualify
 
 
 class TeamsAdmin(admin.ModelAdmin):
@@ -46,7 +46,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 
 class GameQuinielaGroupsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'gameId', 'teamA', 'teamB', 'scoreA', 'scoreB', 'winner')
+    list_display = ('user', 'gameId', 'teamA', 'scoreA', 'teamB', 'scoreB', 'winner')
     list_filter = ['user_quiniela', 'gameId']
 
     def user(self, obj):
@@ -75,8 +75,37 @@ class GameQuinielaGroupsAdmin(admin.ModelAdmin):
         game = Game.objects.get(gameId=obj.gameId)
         return game.winner.name if game else 'N/A'
 
+class GameQuinielaQualifyAdmin(admin.ModelAdmin):
+    list_display = ('user', 'gameId', 'teamA', 'scoreA', 'scoreB', 'teamB', 'winner')
+    list_filter = ['user_quiniela', 'gameId']
+
+    def user(self, obj):
+        return obj.user_quiniela.djuser_fk.username
+
+    def game_id(self, obj):
+        return obj.gameId
+
+    def teamA(self, obj):
+        return obj.teamA
+
+    def teamB(self, obj):
+        return obj.teamB
+
+    def scoreA(self, obj):
+        game = Game.objects.get(gameId=obj.gameId)
+        return game.scoreA if game else 'N/A'
+
+    def scoreB(self, obj):
+        game = Game.objects.get(gameId=obj.gameId)
+        return game.scoreB if game else 'N/A'
+
+    def winner(self, obj):
+        game = Game.objects.get(gameId=obj.gameId)
+        return game.winner.name if game else 'N/A'
+
 
 admin.site.register(GameQuinielaGroups, GameQuinielaGroupsAdmin)
+admin.site.register(GameQuinielaQualify, GameQuinielaQualifyAdmin)
 admin.site.register(Teams, TeamsAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(QuinielaTournament, TournamentAdmin)
