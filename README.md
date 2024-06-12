@@ -45,3 +45,4 @@ python manage.py runserver
 ## Contributors
 
 https://github.com/mecoccaro
+https://github.com/jrcapriles
