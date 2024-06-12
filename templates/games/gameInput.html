@@ -523,17 +523,82 @@
     })
 
     $('input').focusout( function(){ // Sort table
-        var group = this.id.slice(0,1)
-        if (group == 'q' || group == 's'|| group =='f') {
-            return false
+        const tableIds = ['AInTable', 'BInTable', 'CInTable', 'DInTable', 'EInTable', 'FInTable'];
+
+        tableIds.forEach(tableId => {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            const rows = Array.from(table.querySelectorAll('tr')).slice(1); // Excluye la cabecera
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('focusout', () => updateTable(tableId));
+                });
+            });
+
+            updateTable(tableId); // Inicializar la tabla con el orden correcto
+        });
+
+        function updateTable(tableId) {
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.querySelectorAll('tr')).slice(1); // Excluye la cabecera
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const G = cells[1].innerText;
+                const P = cells[2].innerText;
+                const E = cells[3].innerText;
+                const Puntos = cells[4];
+                const GF = cells[5].innerText;
+                const GC = cells[6].innerText;
+                const GD = cells[7].innerText;
+
+                if (!G || !P || !E || !GF || !GC || !Puntos || !GD) {
+                    console.error('Error: Missing input or cell in row', row);
+                    return;
+                }
+
+                const GValue = parseInt(G) || 0;
+                const PValue = parseInt(P) || 0;
+                const EValue = parseInt(E) || 0;
+                const GFValue = parseInt(GF) || 0;
+                const GCValue = parseInt(GC) || 0;
+
+                const puntos = (GValue * 3) + EValue;
+                const golDiferencia = GFValue - GCValue;
+
+                Puntos.textContent = puntos;
+                GD.textContent = golDiferencia;
+            });
+
+            sortTable(table);
         }
-        $(this).data('result', $(this).val());
-        var teamB = $(`span[name=teamB][id=${this.id}]`).text()
-        $this = $('#' + teamB).find("td")
-        val = $this.eq(4).text()
-        var tabName = this.id.slice(0,1) + 'InTable'
-        if (parseInt(val) > 0) {
-            sortTable(tabName)
+
+        function sortTable(table) {
+            const rows = Array.from(table.querySelectorAll('tr')).slice(1); // Excluye la cabecera
+
+            rows.sort((a, b) => {
+                const puntosA = parseInt(a.querySelectorAll('td')[4].textContent);
+                const puntosB = parseInt(b.querySelectorAll('td')[4].textContent);
+
+                const gdA = parseInt(a.querySelectorAll('td')[7].textContent);
+                const gdB = parseInt(b.querySelectorAll('td')[7].textContent);
+
+                const gfA = parseInt(a.querySelectorAll('td')[5].innerText);
+                const gfB = parseInt(b.querySelectorAll('td')[5].innerText);
+
+                if (puntosA !== puntosB) {
+                    return puntosB - puntosA;
+                } else if (gdA !== gdB) {
+                    return gdB - gdA;
+                } else {
+                    return gfB - gfA;
+                }
+            });
+
+            rows.forEach(row => table.appendChild(row));
         }
     })
 
