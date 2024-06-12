@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+  {% include "user/home.html" %}
+{% else %}
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-xl-10 col-lg-12 col-md-9">
+          <div class="card o-hidden border-0 shadow-lg my-5">
+              <div class="card-body p-0">
+                  <!-- Nested Row within Card Body -->
+                  <div class="row">
+                        <img src="https://pm1.aminoapps.com/6342/3a25700321e2ac57aea51f74a7490b8cddeda704_hq.jpg" style="width: 100%;"/>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+
+  </div>
+
+</div>
+{% load static %}
+{% endif %}
+{% endblock %}
