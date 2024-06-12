@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.utils.html import format_html
 
 from .models import Game, Phases, QuinielaTournament, Teams, UserQuiniela, GameQuinielaGroups, GameQuinielaQualify
 
@@ -29,11 +30,25 @@ class UserQuinielaAdmin(admin.ModelAdmin):
     list_display = ('points', 'quiniela_fk', 'djuser_fk', 'filled')
 
 class LogEntryAdmin(admin.ModelAdmin):
-    list_display = ['action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message']
-    list_filter = ['action_time', 'user', 'content_type', 'action_flag']
+    list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag_display', 'change_message')
+    list_filter = ('action_time', 'user', 'content_type', 'action_flag')
     search_fields = ['object_repr', 'change_message']
     readonly_fields = list_display
     can_delete = False
+
+    def action_flag_display(self, obj):
+        if obj.action_flag == 1001:
+            return format_html('<span style="color: blue;">INFO</span>')
+        elif obj.action_flag == ADDITION:
+            return 'ADDITION'
+        elif obj.action_flag == CHANGE:
+            return 'CHANGE'
+        elif obj.action_flag == DELETION:
+            return 'DELETION'
+        else:
+            return obj.action_flag
+
+    action_flag_display.short_description = 'Action Type'
 
     def has_add_permission(self, request):
         return False
