@@ -21,3 +21,13 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'check']
+
+
+class CustomPasswordResetForm(forms.Form):
+    email = forms.EmailField(label="Correo electrónico", max_length=254)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("No existe una cuenta con este correo electrónico.")
+        return email
