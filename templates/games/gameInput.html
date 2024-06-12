@@ -967,64 +967,70 @@
             */
         }
         // codigo chatgpt para 3eros
-        let thirdPlaces = [];
+        const tableIds = ['AInTable', 'BInTable', 'CInTable', 'DInTable', 'EInTable', 'FInTable'];
+        const thirdPlaces = [];
 
-        groups.forEach(group => {
-            let table = document.getElementById(`${group}InTable`);
-            let rows = table.getElementsByTagName('tr');
-            let teams = [];
+        // Recopilar datos de los equipos que quedaron en tercer lugar
+        tableIds.forEach(tableId => {
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.querySelectorAll('tr')).slice(1); // Excluye la cabecera
 
-            for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].getElementsByTagName('td');
-                let team = {
-                    name: cells[0].innerText,
-                    points: parseInt(cells[4].innerText),
-                    gf: parseInt(cells[5].innerText),
-                    gc: parseInt(cells[6].innerText),
-                    gd: parseInt(cells[7].innerText),
-                    group: group,
-                };
-                teams.push(team);
+            if (rows.length > 2) {
+                const thirdPlaceRow = rows[2];
+                const teamName = thirdPlaceRow.querySelector('td').textContent.trim();
+                const points = parseInt(thirdPlaceRow.querySelectorAll('td')[4].textContent);
+                const goalDifference = parseInt(thirdPlaceRow.querySelectorAll('td')[7].textContent);
+                const goalsFor = parseInt(thirdPlaceRow.querySelectorAll('td')[5].innerText);
+
+                thirdPlaces.push({ group: tableId.charAt(0), name: teamName, points, goalDifference, goalsFor });
             }
-
-            teams.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf);
-            thirdPlaces.push(teams[2]);
         });
 
-        thirdPlaces.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf);
-
-        console.log("Mejores terceros puestos:");
-        thirdPlaces.forEach((team, index) => {
-            console.log(`${index + 1}. ${team.name} - Puntos: ${team.points}, GD: ${team.gd}, GF: ${team.gf}`);
+        // Ordenar los equipos que quedaron en tercer lugar
+        thirdPlaces.sort((a, b) => {
+            if (a.points !== b.points) return b.points - a.points;
+            if (a.goalDifference !== b.goalDifference) return b.goalDifference - a.goalDifference;
+            return b.goalsFor - a.goalsFor;
         });
 
+        // Determinar los cuatro mejores terceros
+        const bestThirds = thirdPlaces.slice(0, 4).map(team => team.group).sort().join('');
 
-        function getBestThirds(excludeGroups = []) {
-            return thirdPlaces.filter(team => !excludeGroups.includes(team.group)).sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf)[0];
+        // Asignar los mejores terceros a las posiciones correspondientes
+        const assignments = {
+            'ABCD': ['A', 'D', 'B', 'C'],
+            'ABCE': ['A', 'E', 'B', 'C'],
+            'ABCF': ['A', 'F', 'B', 'C'],
+            'ABDE': ['D', 'E', 'A', 'B'],
+            'ABDF': ['D', 'F', 'A', 'B'],
+            'ABEF': ['E', 'F', 'B', 'A'],
+            'ACDE': ['E', 'D', 'C', 'A'],
+            'ACDF': ['F', 'D', 'C', 'A'],
+            'ACEF': ['E', 'F', 'C', 'A'],
+            'ADEF': ['E', 'F', 'D', 'A'],
+            'BCDE': ['E', 'D', 'B', 'C'],
+            'BCDF': ['F', 'D', 'B', 'C'],
+            'BCEF': ['F', 'E', 'B', 'C'],
+            'BDEF': ['F', 'E', 'D', 'B'],
+            'CDEF': ['F', 'E', 'D', 'C']
+        };
+
+        const assignmentOrder = assignments[bestThirds];
+
+        if (assignmentOrder) {
+            const thirdTeams = thirdPlaces.slice(0, 4);
+            const assignmentTargets = ['q1', 'q7', 'q5', 'q3'];
+
+            assignmentOrder.forEach((group, index) => {
+                const team = thirdTeams.find(team => team.group === group);
+                if (team) {
+                    $(`span[name=teamB][id='${assignmentTargets[index]}']`).text(team.name);
+                }
+            });
+        } else {
+            console.error('No valid assignment found for the given best third places order:', bestThirds);
         }
 
-        let bestThirdADEF = getBestThirds([]);
-        let bestThirdABCD = getBestThirds([bestThirdADEF.group]);
-        let bestThirdABC = getBestThirds([bestThirdADEF.group, bestThirdABCD.group]);
-        let bestThirdDEF = getBestThirds([bestThirdADEF.group, bestThirdABCD.group, bestThirdABC.group]);
-
-        // insert into 8vos qualified 3rd
-        $(`span[name=teamB][id='q1']`).text(bestThirdADEF.name)
-        $(`span[name=teamB][id='q3']`).text(bestThirdABCD.name)
-        $(`span[name=teamB][id='q5']`).text(bestThirdABC.name)
-        $(`span[name=teamB][id='q7']`).text(bestThirdDEF.name)
-
-        console.log("Mejor 3ero de ADEF:");
-        console.log(`${bestThirdADEF.name} - Puntos: ${bestThirdADEF.points}, GD: ${bestThirdADEF.gd}, GF: ${bestThirdADEF.gf}`);
-
-        console.log("Mejor 3ero de ABCD:");
-        console.log(`${bestThirdABCD.name} - Puntos: ${bestThirdABCD.points}, GD: ${bestThirdABCD.gd}, GF: ${bestThirdABCD.gf}`);
-
-        console.log("Mejor 3ero de ABC:");
-        console.log(`${bestThirdABC.name} - Puntos: ${bestThirdABC.points}, GD: ${bestThirdABC.gd}, GF: ${bestThirdABC.gf}`);
-
-        console.log("Mejor 3ero de DEF:");
-        console.log(`${bestThirdDEF.name} - Puntos: ${bestThirdDEF.points}, GD: ${bestThirdDEF.gd}, GF: ${bestThirdDEF.gf}`);
     })
 
     $('#8vos').click( function (){
