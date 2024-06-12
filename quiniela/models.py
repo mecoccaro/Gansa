@@ -48,6 +48,9 @@ class UserQuiniela(models.Model):
     quiniela_fk = models.ForeignKey(QuinielaTournament, on_delete=models.CASCADE)
     djuser_fk = models.ForeignKey(DJuser, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.djuser_fk.username
+
 
 class Phases(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

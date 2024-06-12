@@ -1083,49 +1083,38 @@
     })
 
     $('#4tos').click( function (){
-        for (t=1; t <= 2; t++){
-            $(`span[name=teamA][id='semi${t}']`).text('')
-            $(`span[name=teamB][id='semi${t}']`).text('')
-            $(`#semi${t}-select option[value='teamA']`).each( function(){
-                $(this).remove();
-            })
-            $(`#semi${t}-select option[value='teamB']`).each( function(){
-                $(this).remove();
-            })
-            hide(`q${t}`)
-        }
-        for (i=9; i <= 12 ; i++) {
-            resA = $(`input[name=resA][id=q${i}]`).val()
-            resB = $(`input[name=resB][id=q${i}]`).val()
-            var teamA = $(`span[name=teamA][id=q${i}]`).text()
-            var teamB = $(`span[name=teamB][id=q${i}]`).text()
-            var side, s, teamW
-            side = i%2 == 0 ? 'B' : 'A'
-            if (resA == resB){
-                teamW = $(`[id=q${i}-select] option:selected`).text()
-            }
-            if (i == 9 || i == 10) { // s means semi for calc semi side
-                s = 2
-            } else {
-                s = 1
-            }
+        const cuartos = ['q9', 'q10', 'q11', 'q12'];
+        const ganadores = {};
+
+        cuartos.forEach(id => {
+            const teamA = document.querySelector(`span[name=teamA][id='${id}']`).textContent.trim();
+            const teamB = document.querySelector(`span[name=teamB][id='${id}']`).textContent.trim();
+            const resA = parseInt(document.querySelector(`input[name='resA'][id='${id}']`).value);
+            const resB = parseInt(document.querySelector(`input[name='resB'][id='${id}']`).value);
+            const winnerSelect = document.querySelector(`select[id='${id}-select']`);
+
+            let winner;
+
             if (resA > resB) {
-                $(`span[name=team${side}][id='semi${s}']`).text(teamA)
-                winner = teamA
-            } else if (resA < resB) {
-                $(`span[name=team${side}][id='semi${s}']`).text(teamB)
-                winner = teamB
-            } else { // Case tie, check how to get value from drop down
-                $(`span[name=team${side}][id='semi${s}']`).text(teamW)
-                winner = teamW
+                winner = teamA;
+            } else if (resB > resA) {
+                winner = teamB;
+            } else if (winnerSelect.style.visibility !== 'hidden' && winnerSelect.value) {
+                winner = winnerSelect.options[winnerSelect.selectedIndex].text;
+            } else {
+                alert(`No se puede determinar el ganador para el juego ${id}.`);
+                return;
             }
-            $('<input>').attr({
-                type: 'hidden',
-                id: `q${i}`,
-                name: 'winnerTeam',
-                value: winner
-            }).appendTo(`#q${i}`);
-        }
+
+            ganadores[id] = winner;
+        });
+
+        // Asignar ganadores a los partidos de semifinales
+        document.querySelector(`span[name=teamA][id='semi1']`).textContent = ganadores['q9'];
+        document.querySelector(`span[name=teamB][id='semi1']`).textContent = ganadores['q11'];
+        document.querySelector(`span[name=teamA][id='semi2']`).textContent = ganadores['q10'];
+        document.querySelector(`span[name=teamB][id='semi2']`).textContent = ganadores['q12'];
+
     })
 
     $('#semi').click( function (){
