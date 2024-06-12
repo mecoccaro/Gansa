@@ -3,14 +3,19 @@ import logging
 import os
 
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from .formGames import GameFormGroups, GamesFormSet
-from .forms import RegisterForm
+from .forms import RegisterForm, CustomPasswordResetForm
 from .models import *
 
 logger = logging.getLogger(__name__)
@@ -215,3 +220,39 @@ def analysis(request, tournament_id):
         'data': dataUrl
     }
     return render(request, 'user/analysis.html', context)
+
+
+def custom_password_reset(request):
+    if request.method == 'POST':
+        form = CustomPasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.get(email=email)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            return redirect(reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token}))
+    else:
+        form = CustomPasswordResetForm()
+    return render(request, 'registration/custom_password_reset.html', {'form': form})
+
+def custom_password_reset_confirm(request, uidb64=None, token=None):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                update_session_auth_hash(request, form.user)  # Opcional, para mantener la sesión iniciada
+                messages.success(request, 'Tu contraseña ha sido restablecida exitosamente.')
+                return redirect('login')
+        else:
+            form = SetPasswordForm(user)
+    else:
+        messages.error(request, 'El enlace de restablecimiento de contraseña no es válido.')
+        return redirect('custom_password_reset')
+    return render(request, 'registration/custom_password_confirm.html', {'form': form})

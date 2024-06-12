@@ -578,24 +578,49 @@
 
         function sortTable(table) {
             const rows = Array.from(table.querySelectorAll('tr')).slice(1); // Excluye la cabecera
+            const games = Array.from(document.querySelectorAll('.input-group'));
 
             rows.sort((a, b) => {
                 const puntosA = parseInt(a.querySelectorAll('td')[4].textContent);
                 const puntosB = parseInt(b.querySelectorAll('td')[4].textContent);
 
+               if (puntosA !== puntosB) {
+                    return puntosB - puntosA;
+               }
+
+                // Verificar enfrentamientos directos si puntos son iguales
+                const teamA = a.querySelector('td').textContent.trim();
+                const teamB = b.querySelector('td').textContent.trim();
+
+                const game = games.find(game =>
+                    (game.querySelector('[name="teamA"]').getAttribute('value') === teamA && game.querySelector('[name="teamB"]').getAttribute('value') === teamB) ||
+                    (game.querySelector('[name="teamA"]').getAttribute('value') === teamB && game.querySelector('[name="teamB"]').getAttribute('value') === teamA)
+                );
+
+                if (game) {
+                    const resA = parseInt(game.querySelector('input[name="resA"]').value);
+                    const resB = parseInt(game.querySelector('input[name="resB"]').value);
+
+                    if (game.querySelector('[name="teamA"]').getAttribute('value') === teamA && game.querySelector('[name="teamB"]').getAttribute('value') === teamB) {
+                        if (resA > resB) return -1;
+                        if (resA < resB) return 1;
+                    } else {
+                        if (resB > resA) return -1;
+                        if (resB < resA) return 1;
+                    }
+                }
+
                 const gdA = parseInt(a.querySelectorAll('td')[7].textContent);
                 const gdB = parseInt(b.querySelectorAll('td')[7].textContent);
+
+                if (gdA !== gdB) {
+                    return gdB - gdA;
+                }
 
                 const gfA = parseInt(a.querySelectorAll('td')[5].innerText);
                 const gfB = parseInt(b.querySelectorAll('td')[5].innerText);
 
-                if (puntosA !== puntosB) {
-                    return puntosB - puntosA;
-                } else if (gdA !== gdB) {
-                    return gdB - gdA;
-                } else {
-                    return gfB - gfA;
-                }
+                return gfB - gfA;
             });
 
             rows.forEach(row => table.appendChild(row));
