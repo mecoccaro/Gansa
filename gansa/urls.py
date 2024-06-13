@@ -21,7 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('quiniela/', include('quiniela.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('terms/', TemplateView.as_view(template_name='terms.html'), name='home'),
+    path('terms/', TemplateView.as_view(template_name='terms.html'), name='terms'),
+    path('extra/', TemplateView.as_view(template_name='extra.html'), name='extra'),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 
