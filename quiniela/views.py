@@ -82,16 +82,6 @@ def userHome(request):
 
 
 def tournamentView(request, tournament_id):
-    obj = get_object_or_404(QuinielaTournament, pk=tournament_id)
-
-    LogEntry.objects.log_action(
-        user_id=request.user.id,
-        content_type_id=ContentType.objects.get_for_model(obj).pk,
-        object_id=obj.pk,
-        object_repr=str(obj),
-        action_flag=INFO,
-        change_message="Accedio al torneo."
-    )
     try:
         tournament = QuinielaTournament.objects.get(id=tournament_id)
         userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
