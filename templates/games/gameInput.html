@@ -1115,6 +1115,34 @@
         document.querySelector(`span[name=teamA][id='semi2']`).textContent = ganadores['q10'];
         document.querySelector(`span[name=teamB][id='semi2']`).textContent = ganadores['q12'];
 
+        $('<input>').attr({
+                type: 'hidden',
+                id: `q9`,
+                name: 'winnerTeam',
+                value: ganadores['q9']
+        }).appendTo(`#q9`);
+
+        $('<input>').attr({
+                type: 'hidden',
+                id: `q10`,
+                name: 'winnerTeam',
+                value: ganadores['q10']
+        }).appendTo(`#q10`);
+
+        $('<input>').attr({
+                type: 'hidden',
+                id: `q11`,
+                name: 'winnerTeam',
+                value: ganadores['q11']
+        }).appendTo(`#q11`);
+
+        $('<input>').attr({
+                type: 'hidden',
+                id: `q12`,
+                name: 'winnerTeam',
+                value: ganadores['q12']
+        }).appendTo(`#q12`);
+
     })
 
     $('#semi').click( function (){
