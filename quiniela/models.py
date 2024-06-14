@@ -102,12 +102,16 @@ def calc_points(sender, instance, **kwargs):
         for game in playersGames:
             uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
             puntos = 0
+            realDiff = abs(game.scoreA - game.scoreB)
+            playerDiff = abs(scoreA - scoreB)
             if winner == game.winner:
                 puntos += 3
             if game.scoreA == scoreA:
-                puntos += 1
+                puntos += 2
             if game.scoreB == scoreB:
-                puntos += 1
+                puntos += 2
+            if realDiff == playerDiff:
+                puntos += 2
             uqt.points += puntos
             uqt.save()
     if phase.name == '8vos':
