@@ -102,8 +102,8 @@ def calc_points(sender, instance, **kwargs):
         for game in playersGames:
             uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
             puntos = 0
-            realDiff = abs(game.scoreA - game.scoreB)
-            playerDiff = abs(scoreA - scoreB)
+            realDiff = game.scoreA - game.scoreB
+            playerDiff = scoreA - scoreB
             if winner == game.winner:
                 puntos += 3
             if game.scoreA == scoreA:
