@@ -1,22 +1,21 @@
+import datetime
 import json
 import logging
 import os
 
 from django.contrib import messages
-from django.contrib.admin.models import LogEntry, ADDITION
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import redirect, render
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
-from .formGames import GameFormGroups, GamesFormSet
 from .forms import RegisterForm, CustomPasswordResetForm
 from .models import *
 
@@ -85,13 +84,27 @@ def tournamentView(request, tournament_id):
     try:
         tournament = QuinielaTournament.objects.get(id=tournament_id)
         userQuiniela = UserQuiniela.objects.get(quiniela_fk=tournament_id, djuser_fk=request.user)
+    except Exception as e:
+        raise Http404(f"Tournament does not exist or error on game: {e}")
+
+    try:
+        logs = LogEntry.objects.filter(
+            Q(object_repr__icontains='Game') & Q(object_repr__startswith='Game ')
+        ).select_related('content_type').order_by('-action_time')[:1]
+
+        for log in logs:
+            game = Game.objects.get(pk=log.object_id)
+            game_name = f"{game.teamA.name} vs {game.teamB.name}. {log.action_time}"
     except:
-        raise Http404("Tournament does not exist")
+        game_name = "Sin actualizar"
+
     users = UserQuiniela.objects.filter(quiniela_fk=tournament_id).order_by('-points')
     context = {
         'tournament': tournament, 
         'user': users,
-        'userQuiniela': userQuiniela}
+        'userQuiniela': userQuiniela,
+        'lastGame': game_name
+    }
     return render(request, 'user/tournament.html', context)
 
 
