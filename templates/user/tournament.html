@@ -31,6 +31,7 @@
 														{% csrf_token %}
 														<h1 class="h4 text-gray-900 mb-4">{{ user.username }}</h1>
 														<h4 class="card-title"><a>{{ tournament.name }}</a></h4>
+                                                        <p>Actualizado hasta: {{ lastGame }}</p>
 														<table class="table">
 																<thead>
 																	<tr>
