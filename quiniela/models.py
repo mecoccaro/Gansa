@@ -16,6 +16,7 @@ class Teams(models.Model):
     def __str__(self):
         return self.name
 
+
 class QuinielaTournament(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=20)
@@ -80,6 +81,7 @@ class GameQuinielaGroups(models.Model):
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
     gameId = models.CharField(max_length=20, null=True)
 
+
 class GameQuinielaQualify(models.Model):
     user_quiniela = models.ForeignKey(UserQuiniela, on_delete=models.CASCADE)
     scoreA = models.IntegerField(null=False)
@@ -88,6 +90,7 @@ class GameQuinielaQualify(models.Model):
     teamB = models.CharField(max_length=100, null=True)
     winner = models.ForeignKey(Teams, on_delete=models.CASCADE)
     gameId = models.CharField(max_length=20, null=True)
+
 
 @receiver(post_save, sender=Game)
 def calc_points(sender, instance, **kwargs):
@@ -120,27 +123,32 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
                 if instance.teamA.name == value.teamA:
-                    puntos += 4
+                    puntos += 6
                 if instance.teamB.name == value.teamB:
-                    puntos += 4
+                    puntos += 6
                 uqt.points += puntos
                 uqt.save()
         else:
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                gameCase = 0 # 0 means not a tie, 1 means tied game
+                gameCase = 0  # 0 means not a tie, 1 means tied game
+                realDiff = game.scoreA - game.scoreB
+                playerDiff = scoreA - scoreB
                 if scoreA == scoreB:
                     gameCase = 1
                 if winner == game.winner and gameCase == 0:
-                    puntos += 4
+                    puntos += 5
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
-                    puntos += 2
-                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
-                    puntos += 2
+                    puntos += 3
+                if game.scoreB == scoreB and instance.teamB.name == game.teamB:
+                    puntos += 3
                 if game.scoreA == game.scoreB and gameCase == 1 and \
-                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
-                    puntos += 4
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 5
+                if (realDiff == playerDiff) and \
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 3
                 uqt.points += puntos
                 uqt.save()
     if phase.name == '4tos':
@@ -149,26 +157,31 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
                 if instance.teamA.name == value.teamA:
-                    puntos += 5
+                    puntos += 6
                 if instance.teamB.name == value.teamB:
-                    puntos += 5
+                    puntos += 6
                 uqt.points += puntos
                 uqt.save()
         else:
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                gameCase = 0 # 0 means not a tie, 1 means tied game
+                gameCase = 0  # 0 means not a tie, 1 means tied game
+                realDiff = game.scoreA - game.scoreB
+                playerDiff = scoreA - scoreB
                 if scoreA == scoreB:
                     gameCase = 1
                 if winner == game.winner and gameCase == 0:
-                    puntos += 5
+                    puntos += 7
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
-                    puntos += 3
-                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
-                    puntos += 3
+                    puntos += 5
+                if game.scoreB == scoreB and instance.teamB.name == game.teamB:
+                    puntos += 5
                 if game.scoreA == game.scoreB and gameCase == 1 and \
-                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 7
+                if (realDiff == playerDiff) and \
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
                     puntos += 5
                 uqt.points += puntos
                 uqt.save()
@@ -187,18 +200,23 @@ def calc_points(sender, instance, **kwargs):
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                gameCase = 0 # 0 means not a tie, 1 means tied game
+                gameCase = 0  # 0 means not a tie, 1 means tied game
+                realDiff = game.scoreA - game.scoreB
+                playerDiff = scoreA - scoreB
                 if scoreA == scoreB:
                     gameCase = 1
                 if winner == game.winner and gameCase == 0:
-                    puntos += 6
+                    puntos += 10
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
-                    puntos += 4
-                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
-                    puntos += 4
+                    puntos += 7
+                if game.scoreB == scoreB and instance.teamB.name == game.teamB:
+                    puntos += 7
                 if game.scoreA == game.scoreB and gameCase == 1 and \
-                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
-                    puntos += 6
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 10
+                if (realDiff == playerDiff) and \
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 7
                 uqt.points += puntos
                 uqt.save()
     if phase.name == 'final':
@@ -207,28 +225,33 @@ def calc_points(sender, instance, **kwargs):
                 puntos = 0
                 uqt = UserQuiniela.objects.get(id=value.user_quiniela.id)
                 if instance.teamA.name == value.teamA:
-                    puntos += 7
+                    puntos += 6
                 if instance.teamB.name == value.teamB:
-                    puntos += 7
+                    puntos += 6
                 uqt.points += puntos
                 uqt.save()
         else:
             for game in playersGamesQ:
                 uqt = UserQuiniela.objects.get(id=game.user_quiniela.id)
                 puntos = 0
-                gameCase = 0 # 0 means not a tie, 1 means tied game
+                gameCase = 0  # 0 means not a tie, 1 means tied game
+                realDiff = game.scoreA - game.scoreB
+                playerDiff = scoreA - scoreB
                 if scoreA == scoreB:
                     gameCase = 1
                 if winner == game.winner and gameCase == 0:
-                    puntos += 8 # points for game
-                    puntos += 15 # poinst for champion
+                    puntos += 15  # points for game
+                    puntos += 15  # poinst for champion
                 if game.scoreA == scoreA and instance.teamA.name == game.teamA:
-                    puntos += 5
-                if game.scoreB == scoreB and  instance.teamB.name == game.teamB:
-                    puntos += 5
+                    puntos += 10
+                if game.scoreB == scoreB and instance.teamB.name == game.teamB:
+                    puntos += 10
                 if game.scoreA == game.scoreB and gameCase == 1 and \
-                    (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
-                    puntos += 8
-                print(uqt.djuser_fk.username)
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 15
+                if (realDiff == playerDiff) and \
+                        (instance.teamA.name == game.teamA or instance.teamB.name == game.teamB):
+                    puntos += 10
                 uqt.points += puntos
                 uqt.save()
+
